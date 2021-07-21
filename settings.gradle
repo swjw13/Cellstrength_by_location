@@ -1,0 +1,2 @@
+rootProject.name = "getCellInfos"
+include ':app'
