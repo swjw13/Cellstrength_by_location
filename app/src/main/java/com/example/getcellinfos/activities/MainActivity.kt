@@ -162,6 +162,7 @@ class MainActivity : AppCompatActivity() {
         startUpdateButton.setOnClickListener {
             startGettingInformation()
         }
+
         endUpdateButton.setOnClickListener {
             stopListening()
         }
