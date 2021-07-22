@@ -18,6 +18,8 @@ class LocationManagerAdvanced(val view: TextView?) : LocationListener {
         val global = view?.context?.applicationContext as GlobalVariable
         global.phoneLatitude = location.latitude.toString()
         global.phoneLongitude = location.longitude.toString()
+        global.phoneAltitude = location.altitude.toString()
+        global.locationTimeInMillis = System.currentTimeMillis()
     }
 
     override fun onProviderEnabled(provider: String) {
