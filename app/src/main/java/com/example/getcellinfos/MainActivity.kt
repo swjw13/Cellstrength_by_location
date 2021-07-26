@@ -1,9 +1,13 @@
-package com.example.getcellinfos.activities
+package com.example.getcellinfos
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.telephony.PhoneStateListener
@@ -17,7 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.getcellinfos.R
+import com.example.getcellinfos.activities.phoneStateAll
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.listener.phoneStateListener
 import com.example.getcellinfos.threadActivity.timerTask
@@ -44,7 +48,11 @@ class MainActivity : AppCompatActivity() {
     private val showPhoneStateButton: Button by lazy {
         findViewById(R.id.showPhoneAllStateButton)
     }
+    private val cellWifiInfoTextView: TextView by lazy{
+        findViewById(R.id.cellWifiInfoTextView)
+    }
 
+    private var wifiManager: WifiManager? = null
     private var locationManager: LocationManager? = null
     private var subscriptionManager: SubscriptionManager? = null
     private var telephonyManager: TelephonyManager? = null
@@ -57,6 +65,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listener2: phoneStateListener
     private lateinit var listener3: LocationManagerAdvanced
     private lateinit var listener4: phoneStateListener
+
+    private lateinit var wifiListener: WifiListener
+    private lateinit var wifiScanReceiver: BroadcastReceiver
 
     private var isPermissionGranted = false
 
@@ -144,6 +155,7 @@ class MainActivity : AppCompatActivity() {
     private fun initForActivity() {
         initListener()
         initManager()
+
     }
 
     private fun initManager() {
@@ -151,6 +163,11 @@ class MainActivity : AppCompatActivity() {
         subscriptionManager =
             getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+
+
+        wifiListener = WifiScanListener(this)
+        wifiScanReceiver = WifiScanReceiver(wifiListener, wifiManager!!)
     }
 
     private fun initListener() {
@@ -189,6 +206,20 @@ class MainActivity : AppCompatActivity() {
         requestMyLocation()
         startListeningWithSid()
         getRealtimeLTE()
+
+        startCheckingWifi()
+    }
+
+    private fun setupWifiChecking(){
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+        applicationContext.registerReceiver(wifiScanReceiver, intentFilter)
+
+    }
+
+    private fun startCheckingWifi(){
+        setupWifiChecking()
+        wifiManager?.startScan()
     }
 
     @SuppressLint("MissingPermission")
@@ -280,7 +311,8 @@ class MainActivity : AppCompatActivity() {
     private fun getRealtimeLTE() {
         if (timerTask == null) {
             timerTask = timerTask(
-                gpsLocationTextview
+//                gpsLocationTextview
+            wifiManager
             )
             timer?.schedule(timerTask, 1000, 1000)
         }

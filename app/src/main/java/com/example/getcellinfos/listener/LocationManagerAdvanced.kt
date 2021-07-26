@@ -13,13 +13,13 @@ class LocationManagerAdvanced(val view: TextView?) : LocationListener {
         val latitude = location.latitude
         val longitude = location.longitude
         val altitude = location.altitude
-//        changeViewFromState(latitude.toString() + " / " + longitude.toString())
+        changeViewFromState(latitude.toString() + " / " + longitude.toString())
 
-        val global = view?.context?.applicationContext as GlobalVariable
-        global.phoneLatitude = location.latitude.toString()
-        global.phoneLongitude = location.longitude.toString()
-        global.phoneAltitude = location.altitude.toString()
-        global.locationTimeInMillis = System.currentTimeMillis()
+//        val global = view?.context?.applicationContext as GlobalVariable
+//        global.phoneLatitude = location.latitude.toString()
+//        global.phoneLongitude = location.longitude.toString()
+//        global.phoneAltitude = location.altitude.toString()
+//        global.locationTimeInMillis = System.currentTimeMillis()
     }
 
     override fun onProviderEnabled(provider: String) {
