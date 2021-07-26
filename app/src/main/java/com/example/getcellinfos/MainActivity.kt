@@ -153,26 +153,31 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initForActivity() {
-        initListener()
+        initButtonListener()
         initManager()
-
     }
 
-    private fun initManager() {
+    private fun initTelephoneManager(){
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
-        subscriptionManager =
-            getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        subscriptionManager = getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        listener = phoneStateListener(this)
+        listener2 = phoneStateListener(this)
+        listener4 = phoneStateListener(this)
+    }
+    private fun initLocationManager(){
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        listener3 = LocationManagerAdvanced(gpsLocationTextview)
+    }
+    private fun initWifiManager(){
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
-
-
         wifiListener = WifiScanListener(this)
         wifiScanReceiver = WifiScanReceiver(wifiListener, wifiManager!!)
     }
 
-    private fun initListener() {
-        initButtonListener()
-        initManagerListener()
+    private fun initManager() {
+        initTelephoneManager()
+        initLocationManager()
+        initWifiManager()
     }
 
     private fun initButtonListener() {
