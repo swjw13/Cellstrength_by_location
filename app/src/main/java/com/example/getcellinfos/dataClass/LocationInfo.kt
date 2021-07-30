@@ -1,6 +1,7 @@
 package com.example.getcellinfos.dataClass
 
-data class locationInfo(
-    var cid: Int? = -1,
-    var lac: Int? = -1
+data class LocationInfo(
+    val latitude: Double,
+    val longitude: Double,
+    val altitude: Double
 )
