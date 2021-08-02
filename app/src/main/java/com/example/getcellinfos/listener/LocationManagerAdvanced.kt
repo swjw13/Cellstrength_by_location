@@ -1,39 +1,42 @@
 package com.example.getcellinfos.listener
 
+import android.annotation.SuppressLint
 import android.location.Location
 import android.location.LocationListener
 import android.widget.TextView
 import android.widget.Toast
-import com.example.getcellinfos.GlobalVariable
+import com.example.getcellinfos.GlobalApplication.GlobalApplication
 
-class LocationManagerAdvanced(val view: TextView?) : LocationListener {
+class LocationManagerAdvanced(
+    private val view: TextView?,
+    private val changeMap: (Double, Double) -> Unit
+) : LocationListener {
 
+    var latitude = 0.00
+    var longitude = 0.00
+    var altitude = 0.00
+
+    @SuppressLint("SetTextI18n")
     override fun onLocationChanged(location: Location) {
 
-        val latitude = location.latitude
-        val longitude = location.longitude
-        val altitude = location.altitude
-//        changeViewFromState(latitude.toString() + " / " + longitude.toString())
+        latitude = location.latitude
+        longitude = location.longitude
+        altitude = location.altitude
 
-        val global = view?.context?.applicationContext as GlobalVariable
-        global.phoneLatitude = location.latitude.toString()
-        global.phoneLongitude = location.longitude.toString()
+        view?.text = "%.5f".format(latitude) + "/" + "%.5f".format(longitude) + "/" + "%.5f".format(altitude)
+        changeMap(latitude, longitude)
+
     }
 
     override fun onProviderEnabled(provider: String) {
         super.onProviderEnabled(provider)
 
-        Toast.makeText(view?.context, "Provider Enabled" + provider, Toast.LENGTH_SHORT).show()
+        Toast.makeText(view?.context, "Provider Enabled", Toast.LENGTH_SHORT).show()
     }
 
     override fun onProviderDisabled(provider: String) {
         super.onProviderDisabled(provider)
-        view?.text = "Provider Disabled"
-        Toast.makeText(view?.context, "Provider Disabled" + provider, Toast.LENGTH_SHORT).show()
-    }
 
-    private fun changeViewFromState(text: String) {
-//        context.findViewById<TextView>(R.id.cellGPSlocationInfoTextview).text = text
-        view?.text = text
+        Toast.makeText(view?.context, "Provider Disabled", Toast.LENGTH_SHORT).show()
     }
 }
