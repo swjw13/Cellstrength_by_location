@@ -12,9 +12,9 @@ class LocationManagerAdvanced(
     private val changeMap: (Double, Double) -> Unit
 ) : LocationListener {
 
-    var latitude = 0.0
-    var longitude = 0.0
-    var altitude = 0.0
+    var latitude = 0.00
+    var longitude = 0.00
+    var altitude = 0.00
 
     @SuppressLint("SetTextI18n")
     override fun onLocationChanged(location: Location) {

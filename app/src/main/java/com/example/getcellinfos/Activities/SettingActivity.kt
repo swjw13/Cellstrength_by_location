@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -37,7 +36,7 @@ class SettingActivity : AppCompatActivity() {
     }
     private fun makeDialog() {
         val dialog = Dialog(this)
-        dialog.setContentView(R.layout.second_dialog)
+        dialog.setContentView(R.layout.time_dialog)
 
         dialog.findViewById<Button>(R.id.submitButton).setOnClickListener {
             autoUpdateSecond = dialog.findViewById<EditText>(R.id.secondEditText).text.toString().toInt()

@@ -35,6 +35,7 @@ import com.example.getcellinfos.dataClass.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.listener.phoneStateListener
 import com.example.getcellinfos.threadActivity.timerTask
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -291,12 +292,16 @@ class MainActivity : AppCompatActivity() {
                     startGettingInformation()
                 }
                 2 -> {
-                    val autotime = intent?.getIntExtra("autoTime", 0)
-                    startGettingInformation()
-                    addTimerTask(autotime ?: 1)
+                    startGettingInformationWithTimertask()
                 }
             }
         }
+    }
+
+    private fun startGettingInformationWithTimertask(){
+        val autotime = intent?.getIntExtra("autoTime", 0)
+        startGettingInformation()
+        addTimerTask(autotime ?: 1)
     }
 
     private fun acquireSettings() {
