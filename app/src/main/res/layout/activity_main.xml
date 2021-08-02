@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -25,14 +25,16 @@
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:orientation="horizontal">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="start"
                 android:padding="7dp"
-                android:text="위치"
+                android:text="@string/location_korean"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/cellLocationTextView"
                 android:layout_width="0dp"
@@ -42,20 +44,23 @@
                 android:padding="7dp"
                 android:textSize="15sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/map">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="start"
                 android:padding="7dp"
-                android:text="RSRP"
+                android:text="@string/rsrp_text"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/rsrpTextView"
                 android:layout_width="0dp"
@@ -65,20 +70,23 @@
                 android:padding="7dp"
                 android:textSize="15sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/map">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="start"
                 android:padding="7dp"
-                android:text="RSRQ"
+                android:text="@string/rsrq_text"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/rsrqTextView"
                 android:layout_width="0dp"
@@ -88,20 +96,23 @@
                 android:padding="7dp"
                 android:textSize="15sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/map">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="start"
                 android:padding="7dp"
-                android:text="RSSI"
+                android:text="@string/rssi_string"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/rssiTextView"
                 android:layout_width="0dp"
@@ -111,20 +122,23 @@
                 android:padding="7dp"
                 android:textSize="15sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/map">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="start"
                 android:padding="7dp"
-                android:text="RSSNR"
+                android:text="@string/rssnr_string"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/rssnrTextView"
                 android:layout_width="0dp"
@@ -134,20 +148,23 @@
                 android:padding="7dp"
                 android:textSize="15sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/map">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="start"
                 android:padding="7dp"
-                android:text="PCI"
+                android:text="@string/pci_string"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/pciTextView"
                 android:layout_width="0dp"
@@ -157,20 +174,23 @@
                 android:padding="7dp"
                 android:textSize="15sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/map">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="start"
                 android:padding="7dp"
-                android:text="EARFCN"
+                android:text="@string/earfcn_string"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/earfcnTextView"
                 android:layout_width="0dp"
@@ -180,20 +200,23 @@
                 android:padding="7dp"
                 android:textSize="15sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/map">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="start"
                 android:padding="7dp"
-                android:text="Neighbor Cell"
+                android:text="@string/neighbor_cell_text"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/neighborcellTextView"
                 android:layout_width="0dp"
@@ -214,21 +237,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_baseline_add_24"
-                app:layout_constraintTop_toTopOf="parent"
+                android:text="@string/endString"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/addMemoButton"
-                android:text="@string/endString" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/addMemoButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@id/addDbButton"
+                android:src="@drawable/ic_baseline_library_books_24"
                 app:layout_constraintBottom_toBottomOf="@id/addDbButton"
-                app:layout_constraintStart_toEndOf="@id/addDbButton"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/ic_baseline_library_books_24" />
+                app:layout_constraintStart_toEndOf="@id/addDbButton"
+                app:layout_constraintTop_toTopOf="@id/addDbButton" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

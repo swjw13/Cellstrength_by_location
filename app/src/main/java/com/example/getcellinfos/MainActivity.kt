@@ -19,10 +19,7 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -61,7 +58,9 @@ class MainActivity : AppCompatActivity() {
     private val neighborCellTextView: TextView by lazy {
         findViewById(R.id.neighborcellTextView)
     }
-
+    private val mainScrollView: ScrollView by lazy{
+        findViewById(R.id.mainScrollView)
+    }
 
     private lateinit var mapFragment: SupportMapFragment
     private lateinit var database: AppDatabase
@@ -99,17 +98,19 @@ class MainActivity : AppCompatActivity() {
         initButtonListener()
         initManager()
     }
-    private fun initDatabase(){
+
+    private fun initDatabase() {
         database = Room.databaseBuilder(this, AppDatabase::class.java, "CellInfo").build()
     }
+
     @SuppressLint("MissingPermission")
-    private fun initMap(){
+    private fun initMap() {
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync { map ->
             map.isMyLocationEnabled = true
-
         }
     }
+
     private fun initButtonListener() {
         addMemoButton.setOnClickListener {
             makeMemoDialog()
@@ -118,6 +119,7 @@ class MainActivity : AppCompatActivity() {
             addDataToDB()
         }
     }
+
     private fun makeMemoDialog() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.memo_dialog)
@@ -135,27 +137,29 @@ class MainActivity : AppCompatActivity() {
     private fun exportCSV() {
         val currentDir = Environment.getExternalStorageDirectory().toString() + File.separator
         val dir = currentDir + "CellInfo/CSV/"
-        if(!File(dir).exists()) {
+        if (!File(dir).exists()) {
             File(dir).mkdirs()
         }
         val time = System.currentTimeMillis()
 
         val sqlToExcel = SQLiteToExcel(this, "CellInfo", dir)
-        sqlToExcel.exportAllTables("$time.csv", CSVExportListener(this))
+        sqlToExcel.exportAllTables("$time.csv", CSVExportListener{ text ->
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun initManager() {
         initTelephoneManager()
         initLocationManager()
-        initWifiManager()
+//        initWifiManager()
     }
 
     private fun initTelephoneManager() {
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
         subscriptionManager =
             getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-        listenerForSignalStrength = phoneStateListener(this)
-        listenerForCellInfos = phoneStateListener(this)
+        listenerForSignalStrength = phoneStateListener(mainScrollView)
+        listenerForCellInfos = phoneStateListener(mainScrollView)
     }
 
     private fun initLocationManager() {
@@ -165,11 +169,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initWifiManager() {
-        wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
-        wifiListener = WifiScanListener(this)
-        wifiScanReceiver = WifiScanReceiver(wifiListener, wifiManager!!)
-    }
+//    private fun initWifiManager() {
+//        wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+//        wifiListener = WifiScanListener(this)
+//        wifiScanReceiver = WifiScanReceiver(wifiListener, wifiManager!!)
+//    }
 
 
     override fun onStart() {
@@ -197,51 +201,60 @@ class MainActivity : AppCompatActivity() {
             ), 101
         )
     }
+
     private fun selfPermissionCheck(permissions: Array<String>, code: Int) {
         var permissionCheck = true
         permissions.forEach { permission ->
-            if((ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED)){
+            if ((ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) == PackageManager.PERMISSION_DENIED)
+            ) {
                 permissionCheck = false
             }
         }
-        if(permissionCheck){
+        if (permissionCheck) {
             isPermissionGranted = true
             checkPhoneStateIfAvailable()
-        } else{
+        } else {
             requestPermissions(permissions, code)
         }
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if(grantResults.isNotEmpty()){
+        if (grantResults.isNotEmpty()) {
             grantResults.forEach { permission ->
-                if(permission != PackageManager.PERMISSION_GRANTED){
+                if (permission != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "권한이 거부되었습니다.1", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
             isPermissionGranted = true
             checkPhoneStateIfAvailable()
-        } else{
+        } else {
             Toast.makeText(this, "권한이 거부되었습니다.2", Toast.LENGTH_SHORT).show()
             finish()
         }
     }
+
     private fun checkPhoneStateIfAvailable() {
         checkisUsimAble()
         checkLocationAble()
         checkPhoneServiceState()
     }
+
     private fun checkLocationAble() {
         val locState = locationManager?.isLocationEnabled
         if (locState != true) {
             buildDialog("위치를 가져올 수 없습니다.")
         }
     }
+
     private fun checkisUsimAble() {
         val simState = telephonyManager?.simState
         if (simState != TelephonyManager.SIM_STATE_READY) {
@@ -251,6 +264,7 @@ class MainActivity : AppCompatActivity() {
             buildDialog("로밍상태입니다.")
         }
     }
+
     @SuppressLint("MissingPermission")
     private fun checkPhoneServiceState() {
         val serviceState = telephonyManager?.serviceState
@@ -260,16 +274,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
-
     override fun onResume() {
         super.onResume()
 
         startGettingInfo()
     }
 
-    private fun startGettingInfo(){
+    private fun startGettingInfo() {
         acquireSettings()
 
         // TODO: 기지국 정보를 받아와서 저장하기 (이후 맵에 추가)
@@ -287,7 +298,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun acquireSettings(){
+
+    private fun acquireSettings() {
         val settings = intent?.getIntExtra("settingNumber", 1)
         settingNumber = settings ?: 1
     }
@@ -311,7 +323,12 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun requestMyLocation() {
-        locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0.0F, listenerForLatitude)
+        locationManager?.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER,
+            0,
+            0.0F,
+            listenerForLatitude
+        )
         locationManager?.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER,
             0,
@@ -333,33 +350,25 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
-
-
-    private fun startCheckingWifi() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            wifiManager?.registerScanResultsCallback(mainExecutor,
-                object : WifiManager.ScanResultsCallback() {
-                    override fun onScanResultsAvailable() {
-                        Log.d("테스트", "Wifi change detected@@@@@")
-                    }
-                })
-        } else {
-            setupWifiChecking()
-            wifiManager?.startScan()
-        }
-    }
-
-    private fun setupWifiChecking() {
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-        applicationContext.registerReceiver(wifiScanReceiver, intentFilter)
-    }
-
-
-
-
+//    private fun startCheckingWifi() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            wifiManager?.registerScanResultsCallback(mainExecutor,
+//                object : WifiManager.ScanResultsCallback() {
+//                    override fun onScanResultsAvailable() {
+//                        Log.d("테스트", "Wifi change detected@@@@@")
+//                    }
+//                })
+//        } else {
+//            setupWifiChecking()
+//            wifiManager?.startScan()
+//        }
+//    }
+//
+//    private fun setupWifiChecking() {
+//        val intentFilter = IntentFilter()
+//        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+//        applicationContext.registerReceiver(wifiScanReceiver, intentFilter)
+//    }
 
 
     override fun onPause() {
@@ -384,9 +393,6 @@ class MainActivity : AppCompatActivity() {
     private fun stopLocationUpdate() {
         locationManager?.removeUpdates(listenerForLatitude)
     }
-
-
-
 
 
     private fun buildDialog(text: String) {
@@ -434,7 +440,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun addTimerTask(autotime: Int) {
-
         if (timer == null) {
             timer = Timer()
         }
@@ -446,16 +451,15 @@ class MainActivity : AppCompatActivity() {
         }
         timer?.schedule(timerTask, 1000 * autotime.toLong(), 1000 * autotime.toLong())
     }
-    private fun deleteDBTable(){
-        Thread{
+
+    private fun deleteDBTable() {
+        Thread {
             database.cellInfoDto().clearTable()
             runOnUiThread {
                 Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
             }
         }.start()
     }
-
-
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -481,7 +485,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun getDateFormat(pattern: String): String{
+    private fun getDateFormat(pattern: String): String {
         val date = Date(System.currentTimeMillis())
         val dateFormat = SimpleDateFormat(pattern)
         return dateFormat.format(date)

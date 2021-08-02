@@ -3,14 +3,16 @@ package com.example.getcellinfos.listener
 import android.app.Activity
 import android.os.Build
 import android.telephony.*
+import android.view.View
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import com.example.getcellinfos.GlobalApplication.GlobalApplication
 import com.example.getcellinfos.R
 import com.example.getcellinfos.dataClass.StrengthInfo
+import kotlin.math.sign
 
 
-class phoneStateListener(val context: Activity) : PhoneStateListener() {
+class phoneStateListener(val context: View) : PhoneStateListener() {
 
     var strengths: MutableList<StrengthInfo> = mutableListOf()
     var list = listOf(0, 0, 0, 0, 0, 0)
@@ -41,11 +43,6 @@ class phoneStateListener(val context: Activity) : PhoneStateListener() {
                     )
                 )
             }
-
-            GlobalApplication.phoneRSSI = result[0]
-            GlobalApplication.phoneRSRP = result[1]
-            GlobalApplication.phoneRSRQ = result[2]
-
         }
     }
 

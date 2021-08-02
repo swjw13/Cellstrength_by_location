@@ -10,4 +10,12 @@
     <string name="realtim_log_korean">실시간 로그</string>
     <string name="enter_string">enter</string>
     <string name="clear_string">clear</string>
+    <string name="location_korean">위치</string>
+    <string name="rsrp_text">RSRP</string>
+    <string name="rsrq_text">RSRQ</string>
+    <string name="rssi_string">RSSI</string>
+    <string name="rssnr_string">RSSNR</string>
+    <string name="pci_string">PCI</string>
+    <string name="earfcn_string">EARFCN</string>
+    <string name="neighbor_cell_text">Neighbor Cell</string>
 </resources>
