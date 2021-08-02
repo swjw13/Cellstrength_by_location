@@ -31,7 +31,6 @@ class SettingActivity : AppCompatActivity() {
             } else{
                 intentAction()
             }
-
         }
     }
     private fun makeDialog() {

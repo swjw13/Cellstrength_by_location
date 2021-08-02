@@ -23,6 +23,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.room.Room
 import com.ajts.androidmads.library.SQLiteToExcel
 import com.example.getcellinfos.Activities.SettingActivity
@@ -35,11 +36,10 @@ import com.example.getcellinfos.dataClass.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.listener.phoneStateListener
 import com.example.getcellinfos.threadActivity.timerTask
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.*
+import com.naver.maps.map.util.FusedLocationSource
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         findViewById(R.id.mainScrollView)
     }
 
-    private lateinit var mapFragment: SupportMapFragment
+    private lateinit var mapFragment: MapFragment
     private lateinit var database: AppDatabase
 
     private var wifiManager: WifiManager? = null
@@ -106,9 +106,14 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun initMap() {
-        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync { map ->
-            map.isMyLocationEnabled = true
+        val fm = supportFragmentManager
+        mapFragment = fm.findFragmentById(R.id.map) as MapFragment?
+            ?: MapFragment.newInstance().also {
+                fm.beginTransaction().add(R.id.map, it).commit()
+            }
+
+        mapFragment.getMapAsync {
+
         }
     }
 
@@ -313,7 +318,7 @@ class MainActivity : AppCompatActivity() {
     fun moveMap(latitude: Double, longitude: Double) {
         val latLng = LatLng(latitude, longitude)
         mapFragment.getMapAsync {
-            it.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.toFloat()))
+            it.cameraPosition = CameraPosition(latLng, 17.0)
         }
 
         neighborCell = tm1?.allCellInfo?.size
@@ -423,9 +428,9 @@ class MainActivity : AppCompatActivity() {
                     uid = null,
                     date = currentDate,
                     time = currentTime,
-                    latitude = listenerForLatitude.latitude,
-                    longitude = listenerForLatitude.longitude,
-                    altitude = listenerForLatitude.altitude,
+                    latitude = listenerForLatitude.latitude.toString(),
+                    longitude = listenerForLatitude.longitude.toString(),
+                    altitude = listenerForLatitude.altitude.toString(),
                     rsrp = listenerForCellInfos.list[0],
                     rsrq = listenerForCellInfos.list[1],
                     rssi = listenerForCellInfos.list[2],
