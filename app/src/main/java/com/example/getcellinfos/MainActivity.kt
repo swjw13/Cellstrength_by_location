@@ -75,8 +75,7 @@ class MainActivity : AppCompatActivity() {
     private var timerTask: TimerTask? = null
 
     private lateinit var listenerForSignalStrength: phoneStateListener
-    private lateinit var listener2: phoneStateListener
-    private lateinit var listener3: LocationManagerAdvanced
+    private lateinit var listenerForLatitude: LocationManagerAdvanced
     private lateinit var listenerForCellInfos: phoneStateListener
 
     private lateinit var wifiListener: WifiListener
@@ -106,6 +105,10 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun initMap(){
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync { map ->
+            map.isMyLocationEnabled = true
+
+        }
     }
     private fun initButtonListener() {
         addMemoButton.setOnClickListener {
@@ -152,13 +155,12 @@ class MainActivity : AppCompatActivity() {
         subscriptionManager =
             getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         listenerForSignalStrength = phoneStateListener(this)
-//        listener2 = phoneStateListener(this)
         listenerForCellInfos = phoneStateListener(this)
     }
 
     private fun initLocationManager() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        listener3 = LocationManagerAdvanced(locationTextView) { latitude, longitude ->
+        listenerForLatitude = LocationManagerAdvanced(locationTextView) { latitude, longitude ->
             moveMap(latitude, longitude)
         }
     }
@@ -195,78 +197,51 @@ class MainActivity : AppCompatActivity() {
             ), 101
         )
     }
-
     private fun selfPermissionCheck(permissions: Array<String>, code: Int) {
-        if ((ContextCompat.checkSelfPermission(
-                this,
-                permissions[0]
-            ) == PackageManager.PERMISSION_DENIED)
-            || (ContextCompat.checkSelfPermission(
-                this,
-                permissions[1]
-            ) == PackageManager.PERMISSION_DENIED)
-            || (ContextCompat.checkSelfPermission(
-                this,
-                permissions[2]
-            ) == PackageManager.PERMISSION_DENIED)
-            || (ContextCompat.checkSelfPermission(
-                this,
-                permissions[3]
-            ) == PackageManager.PERMISSION_DENIED)
-            || (ContextCompat.checkSelfPermission(
-                this,
-                permissions[4]
-            ) == PackageManager.PERMISSION_DENIED)
-        ) {
-            requestPermissions(
-                permissions, code
-            )
-        } else {
+        var permissionCheck = true
+        permissions.forEach { permission ->
+            if((ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED)){
+                permissionCheck = false
+            }
+        }
+        if(permissionCheck){
             isPermissionGranted = true
             checkPhoneStateIfAvailable()
-
+        } else{
+            requestPermissions(permissions, code)
         }
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        fun isPermissionChecked() {
-            if ((grantResults.isEmpty() ||
-                        (grantResults[0] != PackageManager.PERMISSION_GRANTED) ||
-                        (grantResults[1] != PackageManager.PERMISSION_GRANTED) ||
-                        (grantResults[2] != PackageManager.PERMISSION_GRANTED) ||
-                        (grantResults[3] != PackageManager.PERMISSION_GRANTED) ||
-                        (grantResults[4] != PackageManager.PERMISSION_GRANTED))
-            ) {
-                Toast.makeText(this, "권한이 거부되었습니다 " + permissions[4], Toast.LENGTH_SHORT).show()
-                finish()
-            } else {
-                isPermissionGranted = true
-                checkPhoneStateIfAvailable()
+        if(grantResults.isNotEmpty()){
+            grantResults.forEach { permission ->
+                if(permission != PackageManager.PERMISSION_GRANTED){
+                    Toast.makeText(this, "권한이 거부되었습니다.1", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
             }
+            isPermissionGranted = true
+            checkPhoneStateIfAvailable()
+        } else{
+            Toast.makeText(this, "권한이 거부되었습니다.2", Toast.LENGTH_SHORT).show()
+            finish()
         }
-
-        isPermissionChecked()
     }
-
     private fun checkPhoneStateIfAvailable() {
         checkisUsimAble()
         checkLocationAble()
         checkPhoneServiceState()
     }
-
     private fun checkLocationAble() {
-        val locState =
-            locationManager?.isLocationEnabled
+        val locState = locationManager?.isLocationEnabled
         if (locState != true) {
             buildDialog("위치를 가져올 수 없습니다.")
         }
     }
-
     private fun checkisUsimAble() {
         val simState = telephonyManager?.simState
         if (simState != TelephonyManager.SIM_STATE_READY) {
@@ -276,7 +251,6 @@ class MainActivity : AppCompatActivity() {
             buildDialog("로밍상태입니다.")
         }
     }
-
     @SuppressLint("MissingPermission")
     private fun checkPhoneServiceState() {
         val serviceState = telephonyManager?.serviceState
@@ -292,21 +266,30 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val settings = intent?.getIntExtra("settingNumber", 1)
-        settingNumber = settings ?: 1
-        val autotime = intent?.getIntExtra("autoTime", 0)
+        startGettingInfo()
+    }
+
+    private fun startGettingInfo(){
+        acquireSettings()
 
         // TODO: 기지국 정보를 받아와서 저장하기 (이후 맵에 추가)
 
         if (isPermissionGranted) {
             when (settingNumber) {
-                1 -> {startGettingInformation()}
-                2 -> {
+                1 -> {
                     startGettingInformation()
-                    addTimerTask(autotime)
+                }
+                2 -> {
+                    val autotime = intent?.getIntExtra("autoTime", 0)
+                    startGettingInformation()
+                    addTimerTask(autotime ?: 1)
                 }
             }
         }
+    }
+    private fun acquireSettings(){
+        val settings = intent?.getIntExtra("settingNumber", 1)
+        settingNumber = settings ?: 1
     }
 
     @SuppressLint("MissingPermission")
@@ -314,7 +297,6 @@ class MainActivity : AppCompatActivity() {
         val latLng = LatLng(latitude, longitude)
         mapFragment.getMapAsync {
             it.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.toFloat()))
-            it.isMyLocationEnabled = true
         }
 
         neighborCell = tm1?.allCellInfo?.size
@@ -329,12 +311,12 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun requestMyLocation() {
-        locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0.0F, listener3)
+        locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0.0F, listenerForLatitude)
         locationManager?.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER,
             0,
             0.0F,
-            listener3
+            listenerForLatitude
         )
     }
 
@@ -347,9 +329,13 @@ class MainActivity : AppCompatActivity() {
         tm1 = telephonyManager?.createForSubscriptionId(subId1)
 
         tm1?.listen(listenerForSignalStrength, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
-//        tm1?.listen(listener2, PhoneStateListener.LISTEN_CELL_LOCATION)
         tm1?.listen(listenerForCellInfos, PhoneStateListener.LISTEN_CELL_INFO)
     }
+
+
+
+
+
 
     private fun startCheckingWifi() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -375,6 +361,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
+
     override fun onPause() {
         super.onPause()
 
@@ -395,8 +382,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopLocationUpdate() {
-        locationManager?.removeUpdates(listener3)
+        locationManager?.removeUpdates(listenerForLatitude)
     }
+
+
+
+
 
     private fun buildDialog(text: String) {
         val builder = AlertDialog.Builder(this)
@@ -421,9 +412,9 @@ class MainActivity : AppCompatActivity() {
                     uid = null,
                     date = currentDate,
                     time = currentTime,
-                    latitude = listener3.latitude,
-                    longitude = listener3.longitude,
-                    altitude = listener3.altitude,
+                    latitude = listenerForLatitude.latitude,
+                    longitude = listenerForLatitude.longitude,
+                    altitude = listenerForLatitude.altitude,
                     rsrp = listenerForCellInfos.list[0],
                     rsrq = listenerForCellInfos.list[1],
                     rssi = listenerForCellInfos.list[2],
@@ -442,7 +433,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun addTimerTask(autotime: Int?) {
+    private fun addTimerTask(autotime: Int) {
 
         if (timer == null) {
             timer = Timer()
@@ -453,8 +444,19 @@ class MainActivity : AppCompatActivity() {
                 addDataToDB()
             }
         }
-        timer?.schedule(timerTask, 1000 * (autotime ?: 1).toLong(), 1000 * (autotime ?: 1).toLong())
+        timer?.schedule(timerTask, 1000 * autotime.toLong(), 1000 * autotime.toLong())
     }
+    private fun deleteDBTable(){
+        Thread{
+            database.cellInfoDto().clearTable()
+            runOnUiThread {
+                Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
+            }
+        }.start()
+    }
+
+
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val menuInflater = menuInflater
@@ -476,14 +478,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-    private fun deleteDBTable(){
-        Thread{
-            database.cellInfoDto().clearTable()
-            runOnUiThread {
-                Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
-            }
-        }.start()
     }
 
     @SuppressLint("SimpleDateFormat")
