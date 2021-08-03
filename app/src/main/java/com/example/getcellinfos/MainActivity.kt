@@ -12,14 +12,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.telephony.PhoneStateListener
-import android.telephony.ServiceState
-import android.telephony.SubscriptionManager
-import android.telephony.TelephonyManager
+import android.telephony.*
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -39,6 +37,7 @@ import com.example.getcellinfos.threadActivity.timerTask
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import java.io.File
 import java.text.SimpleDateFormat
@@ -59,12 +58,14 @@ class MainActivity : AppCompatActivity() {
     private val neighborCellTextView: TextView by lazy {
         findViewById(R.id.neighborcellTextView)
     }
-    private val mainScrollView: ScrollView by lazy{
-        findViewById(R.id.mainScrollView)
+    private val mainScrollView: ScrollView by lazy {
+        findViewById(R.id.scrollMain)
     }
 
     private lateinit var mapFragment: MapFragment
     private lateinit var database: AppDatabase
+    private lateinit var naverMap: NaverMap
+    private lateinit var mLocationSource: FusedLocationSource
 
     private var wifiManager: WifiManager? = null
     private var locationManager: LocationManager? = null
@@ -86,6 +87,7 @@ class MainActivity : AppCompatActivity() {
     private var Memos = ""
     private var neighborCell: Int? = 0
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -93,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         initForActivity()
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initForActivity() {
         initDatabase()
         initMap()
@@ -112,11 +115,13 @@ class MainActivity : AppCompatActivity() {
                 fm.beginTransaction().add(R.id.map, it).commit()
             }
 
-        mapFragment.getMapAsync {
-
+        mapFragment.getMapAsync { nMap ->
+            naverMap = nMap
+            mLocationSource = FusedLocationSource(this, 102)
+            naverMap.locationSource = mLocationSource
+            naverMap.locationTrackingMode = LocationTrackingMode.Follow
         }
     }
-
     private fun initButtonListener() {
         addMemoButton.setOnClickListener {
             makeMemoDialog()
@@ -149,11 +154,12 @@ class MainActivity : AppCompatActivity() {
         val time = System.currentTimeMillis()
 
         val sqlToExcel = SQLiteToExcel(this, "CellInfo", dir)
-        sqlToExcel.exportAllTables("$time.csv", CSVExportListener{ text ->
+        sqlToExcel.exportAllTables("$time.csv", CSVExportListener { text ->
             Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initManager() {
         initTelephoneManager()
         initLocationManager()
@@ -168,6 +174,7 @@ class MainActivity : AppCompatActivity() {
         listenerForCellInfos = phoneStateListener(mainScrollView)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initLocationManager() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         listenerForLatitude = LocationManagerAdvanced(locationTextView) { latitude, longitude ->
@@ -233,19 +240,27 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (grantResults.isNotEmpty()) {
-            grantResults.forEach { permission ->
-                if (permission != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "권한이 거부되었습니다.1", Toast.LENGTH_SHORT).show()
+        when (requestCode) {
+            101 -> {
+                if (grantResults.isNotEmpty()) {
+                    grantResults.forEach { permission ->
+                        if (permission != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "권한이 거부되었습니다.1", Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+                    }
+                    isPermissionGranted = true
+                    checkPhoneStateIfAvailable()
+                } else {
+                    Toast.makeText(this, "권한이 거부되었습니다.2", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
-            isPermissionGranted = true
-            checkPhoneStateIfAvailable()
-        } else {
-            Toast.makeText(this, "권한이 거부되었습니다.2", Toast.LENGTH_SHORT).show()
-            finish()
+            102 -> {
+
+            }
         }
+
     }
 
     private fun checkPhoneStateIfAvailable() {
@@ -303,7 +318,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun startGettingInformationWithTimertask(){
+    private fun startGettingInformationWithTimertask() {
         val autotime = intent?.getIntExtra("autoTime", 0)
         startGettingInformation()
         addTimerTask(autotime ?: 1)
@@ -316,13 +331,19 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     fun moveMap(latitude: Double, longitude: Double) {
-        val latLng = LatLng(latitude, longitude)
-        mapFragment.getMapAsync {
-            it.cameraPosition = CameraPosition(latLng, 17.0)
-        }
+        naverMap.cameraPosition = CameraPosition(LatLng(latitude, longitude), 17.0)
 
-        neighborCell = tm1?.allCellInfo?.size
-        neighborCellTextView.text = neighborCell.toString()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            tm1?.requestCellInfoUpdate(mainExecutor,
+                object : TelephonyManager.CellInfoCallback() {
+                    override fun onCellInfo(cellInfo: MutableList<android.telephony.CellInfo>) {
+                        neighborCellTextView.text = cellInfo.size.toString()
+                    }
+                })
+        } else {
+            neighborCell = tm1?.allCellInfo?.size
+            neighborCellTextView.text = neighborCell.toString()
+        }
     }
 
     private fun startGettingInformation() {
@@ -431,7 +452,7 @@ class MainActivity : AppCompatActivity() {
                     latitude = listenerForLatitude.latitude.toString(),
                     longitude = listenerForLatitude.longitude.toString(),
                     altitude = listenerForLatitude.altitude.toString(),
-                    rsrp = listenerForCellInfos.list[0],
+                    rsrp = listenerForSignalStrength.list[0],
                     rsrq = listenerForCellInfos.list[1],
                     rssi = listenerForCellInfos.list[2],
                     rssnr = listenerForCellInfos.list[3],
