@@ -53,8 +53,7 @@ dependencies {
     implementation 'com.ajts.androidmads.SQLite2Excel:library:1.0.4'
 
     implementation 'com.github.doyaaaaaken:kotlin-csv-jvm:0.15.2'
-    implementation 'com.google.android.gms:play-services-maps:17.0.1'
-    implementation 'com.google.android.gms:play-services-location:18.0.0'
 
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'com.naver.maps:map-sdk:3.12.0'
 }
