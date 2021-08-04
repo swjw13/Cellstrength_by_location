@@ -43,11 +43,11 @@ class phoneStateListener(val context: View) : PhoneStateListener() {
                 if ((m is CellInfoLte) && m.isRegistered) {
                     list[4] = m.cellIdentity.earfcn
                     context.findViewById<TextView>(R.id.earfcnTextView).text =
-                        m.cellIdentity.earfcn.toString()
+                        list[4].toString()
 
                     list[5] = m.cellIdentity.pci
                     context.findViewById<TextView>(R.id.pciTextView).text =
-                        m.cellIdentity.pci.toString()
+                        list[5].toString()
                 }
             }
         }

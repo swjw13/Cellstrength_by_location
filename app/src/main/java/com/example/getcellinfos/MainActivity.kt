@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     private var locationManager: LocationManager? = null
     private var subscriptionManager: SubscriptionManager? = null
     private var telephonyManager: TelephonyManager? = null
-    private var tm1: TelephonyManager? = null
+    private var telephonyManagerWithSubscriptionId: TelephonyManager? = null
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
 
@@ -78,7 +78,6 @@ class MainActivity : AppCompatActivity() {
     private var isPermissionGranted = false
     private var settingNumber = 2
     private var Memos = ""
-    private var neighborCell: Int? = 0
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,7 +87,6 @@ class MainActivity : AppCompatActivity() {
         initForActivity()
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initForActivity() {
         initDatabase()
         initMap()
@@ -153,22 +151,25 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initManager() {
         initTelephoneManager()
         initLocationManager()
 //        initWifiManager()
     }
 
+    @SuppressLint("MissingPermission")
     private fun initTelephoneManager() {
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
         subscriptionManager =
             getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         listenerForSignalStrength = phoneStateListener(mainScrollView)
         listenerForCellInfos = phoneStateListener(mainScrollView)
+
+        telephonyManagerWithSubscriptionId = telephonyManager?.createForSubscriptionId(
+            subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
+        )
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initLocationManager() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         listenerForLatitude = LocationManagerAdvanced(locationTextView) { latitude, longitude ->
@@ -292,7 +293,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGettingInfo() {
-        acquireSettings()
+        settingNumber = acquireSettings()
 
         // TODO: 기지국 정보를 받아와서 저장하기 (이후 맵에 추가)
 
@@ -313,8 +314,8 @@ class MainActivity : AppCompatActivity() {
         addTimerTask(intent?.getIntExtra("autoTime", 0) ?: 1)
     }
 
-    private fun acquireSettings() {
-        settingNumber = intent?.getIntExtra("settingNumber", 1) ?: 1
+    private fun acquireSettings():Int {
+        return intent?.getIntExtra("settingNumber", 1) ?: 1
     }
 
     private fun moveMap(latitude: Double, longitude: Double) {
@@ -343,15 +344,15 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    @SuppressLint("MissingPermission")
     private fun startListeningWithSid() {
-        val subId1 =
-            subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
-
-        tm1 = telephonyManager?.createForSubscriptionId(subId1)
-
-        tm1?.listen(listenerForSignalStrength, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
-        tm1?.listen(listenerForCellInfos, PhoneStateListener.LISTEN_CELL_INFO)
+        telephonyManagerWithSubscriptionId?.listen(
+            listenerForSignalStrength,
+            PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
+        )
+        telephonyManagerWithSubscriptionId?.listen(
+            listenerForCellInfos,
+            PhoneStateListener.LISTEN_CELL_INFO
+        )
     }
 
 
@@ -388,8 +389,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopPhoneStateListener() {
-        tm1?.listen(listenerForSignalStrength, PhoneStateListener.LISTEN_NONE)
-        tm1?.listen(listenerForCellInfos, PhoneStateListener.LISTEN_NONE)
+        telephonyManagerWithSubscriptionId?.listen(
+            listenerForSignalStrength,
+            PhoneStateListener.LISTEN_NONE
+        )
+        telephonyManagerWithSubscriptionId?.listen(
+            listenerForCellInfos,
+            PhoneStateListener.LISTEN_NONE
+        )
         timer?.cancel()
         timer = null
         timerTask = null
