@@ -27,13 +27,10 @@
         android:appComponentFactory="whateverString">
 
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/GOOGLE_MAP_API_KEY"/>
-        <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="@string/NAVER_MAP_API_KEY" />
 
-        <activity android:name=".Activities.SettingActivity" />
+        <activity android:name=".activities.SettingActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

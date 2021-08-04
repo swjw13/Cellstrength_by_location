@@ -10,9 +10,6 @@ interface CellInfoDao {
     @Insert
     fun insertLog(cellInfo: CellInfo)
 
-//    @get:Query("SELECT * FROM cellinfo")
-//    val allInfo: List<CellInfo>
-
     @Query("DELETE FROM cellinfo")
     fun clearTable()
 }

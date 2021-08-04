@@ -1,4 +1,4 @@
-package com.example.getcellinfos.Activities
+package com.example.getcellinfos.activities
 
 import android.app.Dialog
 import android.content.Intent
@@ -25,7 +25,6 @@ class SettingActivity : AppCompatActivity() {
 
         binding.admitButton.setOnClickListener {
             checkedSetting = binding.radioGroup.checkedRadioButtonId
-
             if(checkedSetting == 2){
                 makeDialog()
             } else{
@@ -33,6 +32,7 @@ class SettingActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun makeDialog() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.time_dialog)
@@ -45,6 +45,7 @@ class SettingActivity : AppCompatActivity() {
         }
         dialog.show()
     }
+
     private fun intentAction(){
         val intent = Intent(this, MainActivity::class.java)
 

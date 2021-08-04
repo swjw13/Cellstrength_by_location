@@ -5,7 +5,6 @@ import android.location.Location
 import android.location.LocationListener
 import android.widget.TextView
 import android.widget.Toast
-import com.example.getcellinfos.GlobalApplication.GlobalApplication
 
 class LocationManagerAdvanced(
     private val view: TextView?,
@@ -18,14 +17,12 @@ class LocationManagerAdvanced(
 
     @SuppressLint("SetTextI18n")
     override fun onLocationChanged(location: Location) {
-
         latitude = location.latitude
         longitude = location.longitude
         altitude = location.altitude
 
         view?.text = "%.5f".format(latitude) + "/" + "%.5f".format(longitude) + "/" + "%.5f".format(altitude)
         changeMap(latitude, longitude)
-
     }
 
     override fun onProviderEnabled(provider: String) {
