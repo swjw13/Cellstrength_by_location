@@ -21,13 +21,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.room.Room
 import com.ajts.androidmads.library.SQLiteToExcel
-import com.example.getcellinfos.Activities.SettingActivity
+import com.example.getcellinfos.activities.SettingActivity
 import com.example.getcellinfos.WifiClass.WifiListener
-import com.example.getcellinfos.WifiClass.WifiScanListener
-import com.example.getcellinfos.WifiClass.WifiScanReceiver
 import com.example.getcellinfos.appDatabase.AppDatabase
 import com.example.getcellinfos.appDatabase.CSVExportListener
 import com.example.getcellinfos.dataClass.CellInfo
@@ -37,7 +34,6 @@ import com.example.getcellinfos.threadActivity.timerTask
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
-import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import java.io.File
 import java.text.SimpleDateFormat
@@ -55,9 +51,6 @@ class MainActivity : AppCompatActivity() {
     private val locationTextView: TextView by lazy {
         findViewById(R.id.cellLocationTextView)
     }
-    private val neighborCellTextView: TextView by lazy {
-        findViewById(R.id.neighborcellTextView)
-    }
     private val mainScrollView: ScrollView by lazy {
         findViewById(R.id.scrollMain)
     }
@@ -67,7 +60,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var naverMap: NaverMap
     private lateinit var mLocationSource: FusedLocationSource
 
-    private var wifiManager: WifiManager? = null
     private var locationManager: LocationManager? = null
     private var subscriptionManager: SubscriptionManager? = null
     private var telephonyManager: TelephonyManager? = null
@@ -79,6 +71,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listenerForLatitude: LocationManagerAdvanced
     private lateinit var listenerForCellInfos: phoneStateListener
 
+    private var wifiManager: WifiManager? = null
     private lateinit var wifiListener: WifiListener
     private lateinit var wifiScanReceiver: BroadcastReceiver
 
@@ -151,6 +144,7 @@ class MainActivity : AppCompatActivity() {
         if (!File(dir).exists()) {
             File(dir).mkdirs()
         }
+
         val time = System.currentTimeMillis()
 
         val sqlToExcel = SQLiteToExcel(this, "CellInfo", dir)
@@ -260,7 +254,6 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-
     }
 
     private fun checkPhoneStateIfAvailable() {
@@ -324,22 +317,8 @@ class MainActivity : AppCompatActivity() {
         settingNumber = intent?.getIntExtra("settingNumber", 1) ?: 1
     }
 
-    @SuppressLint("MissingPermission")
-    fun moveMap(latitude: Double, longitude: Double) {
+    private fun moveMap(latitude: Double, longitude: Double) {
         naverMap.cameraPosition = CameraPosition(LatLng(latitude, longitude), 17.0)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            tm1?.requestCellInfoUpdate(mainExecutor,
-                object : TelephonyManager.CellInfoCallback() {
-                    override fun onCellInfo(cellInfo: MutableList<android.telephony.CellInfo>) {
-                        neighborCell = cellInfo.size
-                        neighborCellTextView.text = neighborCell.toString()
-                    }
-                })
-        } else {
-            neighborCell = tm1?.allCellInfo?.size
-            neighborCellTextView.text = neighborCell.toString()
-        }
     }
 
     private fun startGettingInformation() {
@@ -449,7 +428,7 @@ class MainActivity : AppCompatActivity() {
                     rssnr = listenerForSignalStrength.list[3],
                     earfcn = listenerForCellInfos.list[4],
                     pci = listenerForCellInfos.list[5],
-                    neighborCell = neighborCell ?: 0,
+                    neighborCell = listenerForCellInfos.list[6],
                     memo = Memos
                 )
             )
