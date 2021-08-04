@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
             naverMap.locationTrackingMode = LocationTrackingMode.Follow
         }
     }
+
     private fun initButtonListener() {
         addMemoButton.setOnClickListener {
             makeMemoDialog()
@@ -137,8 +138,7 @@ class MainActivity : AppCompatActivity() {
         dialog.findViewById<EditText>(R.id.memoEditText).text.append(Memos)
 
         dialog.findViewById<Button>(R.id.memoSubmitButton).setOnClickListener {
-            val memos = dialog.findViewById<EditText>(R.id.memoEditText).text.toString()
-            Memos = memos
+            Memos = dialog.findViewById<EditText>(R.id.memoEditText).text.toString()
             Toast.makeText(this, "매모 작성 완료", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
         }
@@ -146,8 +146,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun exportCSV() {
-        val currentDir = Environment.getExternalStorageDirectory().toString() + File.separator
-        val dir = currentDir + "CellInfo/CSV/"
+        val dir =
+            Environment.getExternalStorageDirectory().toString() + File.separator + "CellInfo/CSV/"
         if (!File(dir).exists()) {
             File(dir).mkdirs()
         }
@@ -270,15 +270,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkLocationAble() {
-        val locState = locationManager?.isLocationEnabled
-        if (locState != true) {
+        if (locationManager?.isLocationEnabled != true) {
             buildDialog("위치를 가져올 수 없습니다.")
         }
     }
 
     private fun checkisUsimAble() {
-        val simState = telephonyManager?.simState
-        if (simState != TelephonyManager.SIM_STATE_READY) {
+        if (telephonyManager?.simState != TelephonyManager.SIM_STATE_READY) {
             buildDialog("유심 상태를 학인해 주세요")
         }
         if (telephonyManager?.isNetworkRoaming == true) {
@@ -288,8 +286,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun checkPhoneServiceState() {
-        val serviceState = telephonyManager?.serviceState
-        if (serviceState?.state != ServiceState.STATE_IN_SERVICE) {
+        if (telephonyManager?.serviceState?.state != ServiceState.STATE_IN_SERVICE) {
             buildDialog("서비스가 불가능한 상태입니다.")
         }
     }
@@ -319,14 +316,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGettingInformationWithTimertask() {
-        val autotime = intent?.getIntExtra("autoTime", 0)
         startGettingInformation()
-        addTimerTask(autotime ?: 1)
+        addTimerTask(intent?.getIntExtra("autoTime", 0) ?: 1)
     }
 
     private fun acquireSettings() {
-        val settings = intent?.getIntExtra("settingNumber", 1)
-        settingNumber = settings ?: 1
+        settingNumber = intent?.getIntExtra("settingNumber", 1) ?: 1
     }
 
     @SuppressLint("MissingPermission")
@@ -337,7 +332,8 @@ class MainActivity : AppCompatActivity() {
             tm1?.requestCellInfoUpdate(mainExecutor,
                 object : TelephonyManager.CellInfoCallback() {
                     override fun onCellInfo(cellInfo: MutableList<android.telephony.CellInfo>) {
-                        neighborCellTextView.text = cellInfo.size.toString()
+                        neighborCell = cellInfo.size
+                        neighborCellTextView.text = neighborCell.toString()
                     }
                 })
         } else {
@@ -370,9 +366,8 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun startListeningWithSid() {
-        val ids = subscriptionManager?.activeSubscriptionInfoList
-
-        val subId1 = ids?.get(0)?.subscriptionId ?: return
+        val subId1 =
+            subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
 
         tm1 = telephonyManager?.createForSubscriptionId(subId1)
 
@@ -439,23 +434,19 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun addDataToDB() {
-
-        val currentDate = getDateFormat("yyyy-MM-dd")
-        val currentTime = getDateFormat("hh:mm:ss")
-
         Thread {
             database.cellInfoDto().insertLog(
                 CellInfo(
                     uid = null,
-                    date = currentDate,
-                    time = currentTime,
+                    date = getDateFormat("yyyy-MM-dd"),
+                    time = getDateFormat("hh:mm:ss"),
                     latitude = listenerForLatitude.latitude.toString(),
                     longitude = listenerForLatitude.longitude.toString(),
                     altitude = listenerForLatitude.altitude.toString(),
                     rsrp = listenerForSignalStrength.list[0],
-                    rsrq = listenerForCellInfos.list[1],
-                    rssi = listenerForCellInfos.list[2],
-                    rssnr = listenerForCellInfos.list[3],
+                    rsrq = listenerForSignalStrength.list[1],
+                    rssi = listenerForSignalStrength.list[2],
+                    rssnr = listenerForSignalStrength.list[3],
                     earfcn = listenerForCellInfos.list[4],
                     pci = listenerForCellInfos.list[5],
                     neighborCell = neighborCell ?: 0,
@@ -494,7 +485,6 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val menuInflater = menuInflater
         menuInflater.inflate(R.menu.activity_main_menu, menu)
         return true
     }
