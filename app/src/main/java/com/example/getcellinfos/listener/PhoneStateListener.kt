@@ -23,10 +23,10 @@ class phoneStateListener(val context: View) : PhoneStateListener() {
                 list[2] = it.rssi
                 list[3] = it.rssnr
 
-                context.findViewById<TextView>(R.id.rsrpTextView).text = it.rsrp.toString()
-                context.findViewById<TextView>(R.id.rsrqTextView).text = it.rsrq.toString()
-                context.findViewById<TextView>(R.id.rssiTextView).text = it.rssi.toString()
-                context.findViewById<TextView>(R.id.rssnrTextView).text = it.rssnr.toString()
+                context.findViewById<TextView>(R.id.rsrpTextView).text = list[0].toString()
+                context.findViewById<TextView>(R.id.rsrqTextView).text = list[1].toString()
+                context.findViewById<TextView>(R.id.rssiTextView).text = list[2].toString()
+                context.findViewById<TextView>(R.id.rssnrTextView).text = list[3].toString()
             }
         }
     }
@@ -46,13 +46,4 @@ class phoneStateListener(val context: View) : PhoneStateListener() {
             }
         }
     }
-
-//    companion object {
-//        var rsrp = 0
-//        var rsrq = 0
-//        var rssi = 0
-//        var rssnr = 0
-//        var earfcn = 0
-//        var pci = 0
-//    }
 }
