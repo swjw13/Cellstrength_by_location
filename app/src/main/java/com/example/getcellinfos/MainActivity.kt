@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.wifi.WifiManager
@@ -17,7 +16,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -76,10 +74,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var wifiScanReceiver: BroadcastReceiver
 
     private var isPermissionGranted = false
-    private var settingNumber = 2
+    private var settingNumber = 1
     private var Memos = ""
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -298,6 +295,7 @@ class MainActivity : AppCompatActivity() {
         // TODO: 기지국 정보를 받아와서 저장하기 (이후 맵에 추가)
 
         if (isPermissionGranted) {
+
             when (settingNumber) {
                 1 -> {
                     startGettingInformation()
@@ -424,8 +422,8 @@ class MainActivity : AppCompatActivity() {
             database.cellInfoDto().insertLog(
                 CellInfo(
                     uid = null,
-                    date = getDateFormat("yyyy-MM-dd"),
-                    time = getDateFormat("hh:mm:ss"),
+                    date = getCurrentTimeFromFormat("yyyy-MM-dd"),
+                    time = getCurrentTimeFromFormat("hh:mm:ss"),
                     latitude = listenerForLatitude.latitude.toString(),
                     longitude = listenerForLatitude.longitude.toString(),
                     altitude = listenerForLatitude.altitude.toString(),
@@ -492,7 +490,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun getDateFormat(pattern: String): String {
+    private fun getCurrentTimeFromFormat(pattern: String): String {
         val date = Date(System.currentTimeMillis())
         val dateFormat = SimpleDateFormat(pattern)
         return dateFormat.format(date)

@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -23,12 +24,20 @@ class SettingActivity : AppCompatActivity() {
         binding = ActivitySettingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.radioGroup.clearCheck()
+
         binding.admitButton.setOnClickListener {
             checkedSetting = binding.radioGroup.checkedRadioButtonId
-            if(checkedSetting == 2){
-                makeDialog()
-            } else{
-                intentAction()
+
+            when(checkedSetting){
+                R.id.noTimerRadio -> {
+                    checkedSetting = 1
+                    intentAction()
+                }
+                R.id.timerRadio -> {
+                    checkedSetting = 2
+                    makeDialog()
+                }
             }
         }
     }
@@ -53,7 +62,7 @@ class SettingActivity : AppCompatActivity() {
         intent.putExtra("autoTime", autoUpdateSecond)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
-        finish()
+//        finish()
     }
 
 }
