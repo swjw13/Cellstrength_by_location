@@ -9,7 +9,7 @@ import com.example.getcellinfos.R
 
 class phoneStateListener(val context: View) : PhoneStateListener() {
 
-    var list = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+    var list = mutableListOf(0, 0, 0, 0, 0, 0, 0, 0)
 
     override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
         super.onSignalStrengthsChanged(signalStrength)
@@ -48,6 +48,8 @@ class phoneStateListener(val context: View) : PhoneStateListener() {
                     list[5] = m.cellIdentity.pci
                     context.findViewById<TextView>(R.id.pciTextView).text =
                         list[5].toString()
+
+                    list[6] = m.cellIdentity.ci
                 }
             }
         }
