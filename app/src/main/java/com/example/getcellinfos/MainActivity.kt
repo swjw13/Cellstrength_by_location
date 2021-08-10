@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -28,11 +29,16 @@ import com.example.getcellinfos.appDatabase.CSVExportListener
 import com.example.getcellinfos.dataClass.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.listener.phoneStateListener
+import com.example.getcellinfos.retrofit.RetrofitClass
+import com.example.getcellinfos.retrofit.RetrofitDto
 import com.example.getcellinfos.threadActivity.timerTask
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -73,6 +79,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var wifiListener: WifiListener
     private lateinit var wifiScanReceiver: BroadcastReceiver
 
+    private lateinit var retrofitClass: RetrofitClass
+
     private var isPermissionGranted = false
     private var settingNumber = 1
     private var Memos = ""
@@ -90,6 +98,11 @@ class MainActivity : AppCompatActivity() {
         initMap()
         initButtonListener()
         initManager()
+        initRetrofitService()
+    }
+
+    private fun initRetrofitService() {
+        retrofitClass = RetrofitClass()
     }
 
     private fun initDatabase() {
@@ -163,6 +176,7 @@ class MainActivity : AppCompatActivity() {
         listenerForSignalStrength = phoneStateListener(mainScrollView)
         listenerForCellInfos = phoneStateListener(mainScrollView)
 
+        subscriptionManager?.getActiveSubscriptionInfoForSimSlotIndex(0)
         telephonyManagerWithSubscriptionId = telephonyManager?.createForSubscriptionId(
             subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
         )
@@ -238,14 +252,14 @@ class MainActivity : AppCompatActivity() {
                 if (grantResults.isNotEmpty()) {
                     grantResults.forEach { permission ->
                         if (permission != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(this, "권한이 거부되었습니다.1", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
                             finish()
                         }
                     }
                     isPermissionGranted = true
                     checkPhoneStateIfAvailable()
                 } else {
-                    Toast.makeText(this, "권한이 거부되었습니다.2", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
@@ -310,10 +324,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun startGettingInformationWithTimertask() {
         startGettingInformation()
-        addTimerTask(intent?.getIntExtra("autoTime", 0) ?: 1)
+        addDatabaseTimerTask(intent?.getIntExtra("autoTime", 0) ?: 1)
     }
 
-    private fun acquireSettings():Int {
+    private fun acquireSettings(): Int {
         return intent?.getIntExtra("settingNumber", 1) ?: 1
     }
 
@@ -446,7 +460,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun addTimerTask(autotime: Int) {
+    private fun addDatabaseTimerTask(autotime: Int) {
         if (timer == null) {
             timer = Timer()
         }
@@ -486,8 +500,40 @@ class MainActivity : AppCompatActivity() {
             R.id.deleteDB -> {
                 deleteDBTable()
             }
+            R.id.retrofitStart -> {
+                getStationInfo()
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun getStationInfo() {
+        Thread {
+            retrofitClass.service.getStationInfo(
+                listenerForCellInfos.list[6], listenerForCellInfos.list[7]
+            ).enqueue(object : Callback<RetrofitDto> {
+                override fun onResponse(call: Call<RetrofitDto>, response: Response<RetrofitDto>) {
+                    if (response.isSuccessful) {
+                        Log.d("jae", response.body().toString())
+                        Toast.makeText(
+                            this@MainActivity,
+                            "기지국 정보 가져오기에 성하였습니다.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "기지국 정보 가져오기에 실패하였습니다. because " + response.message(),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<RetrofitDto>, t: Throwable) {
+                    Toast.makeText(this@MainActivity, t.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+        }.start()
     }
 
     @SuppressLint("SimpleDateFormat")

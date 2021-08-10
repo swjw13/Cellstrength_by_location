@@ -2,6 +2,7 @@ package com.example.getcellinfos.listener
 
 import android.os.Build
 import android.telephony.*
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.example.getcellinfos.R
@@ -9,7 +10,7 @@ import com.example.getcellinfos.R
 
 class phoneStateListener(val context: View) : PhoneStateListener() {
 
-    var list = mutableListOf(0, 0, 0, 0, 0, 0, 0, 0)
+    var list = mutableListOf(0, 0, 0, 0, 0, 0, 0, 0, 0)
 
     override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
         super.onSignalStrengthsChanged(signalStrength)
@@ -49,7 +50,11 @@ class phoneStateListener(val context: View) : PhoneStateListener() {
                     context.findViewById<TextView>(R.id.pciTextView).text =
                         list[5].toString()
 
-                    list[6] = m.cellIdentity.ci
+//                    list[6] = m.cellIdentity.ci
+                    val bit_enbid = 0b1111111111111111111100000000
+                    val bit_cellnum = 0b11111100
+                    list[6] = m.cellIdentity.ci and bit_enbid
+                    list[7] = m.cellIdentity.ci and bit_cellnum
                 }
             }
         }
