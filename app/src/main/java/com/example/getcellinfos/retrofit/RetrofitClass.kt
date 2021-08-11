@@ -9,5 +9,8 @@ class RetrofitClass {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val service = retrofit.create(RetrofitService::class.java)
+
+    private val service: RetrofitService = retrofit.create(RetrofitService::class.java)
+
+    fun getInstance(): RetrofitService = service
 }

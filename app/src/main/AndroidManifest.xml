@@ -28,8 +28,11 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:appComponentFactory">
         <activity
-            android:name=".WifiClass.WifiActivity"
+            android:name=".Pager.PagerActivity"
             android:exported="true" />
+<!--        <activity-->
+<!--            android:name=".WifiClass.WifiActivity"-->
+<!--            android:exported="true" />-->
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"

@@ -11,7 +11,7 @@ class WifiRecyclerViewAdapter: RecyclerView.Adapter<WifiRecyclerViewAdapter.View
 
     var list = mutableListOf<WifiDataUnit>()
 
-    inner class ViewHolder(val itemview: View): RecyclerView.ViewHolder(itemview){
+    inner class ViewHolder(private val itemview: View): RecyclerView.ViewHolder(itemview){
         fun bind(item: WifiDataUnit){
             itemview.findViewById<TextView>(R.id.wifiNameTextView).text = item.name
             itemview.findViewById<TextView>(R.id.wifiBssidTextView).text = item.subName

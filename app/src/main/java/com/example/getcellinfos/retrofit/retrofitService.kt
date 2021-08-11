@@ -7,7 +7,7 @@ import retrofit2.http.Query
 interface RetrofitService {
     @GET("location")
     fun getStationInfo(
-        @Query("enbld") enbld: Int,
+        @Query("enbId") enbId: Int,
         @Query("cellNum") cellNum: Int
     ): Call<RetrofitDto>
 }
