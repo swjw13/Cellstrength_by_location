@@ -28,7 +28,7 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:appComponentFactory">
         <activity
-            android:name=".activities.WifiActivity"
+            android:name=".WifiClass.WifiActivity"
             android:exported="true" />
 
         <meta-data

@@ -18,4 +18,5 @@
     <string name="pci_string">PCI</string>
     <string name="earfcn_string">EARFCN</string>
     <string name="neighbor_cell_text">Neighbor Cell</string>
+    <string name="wifi_list_string">wifi List</string>
 </resources>

@@ -16,7 +16,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -24,6 +23,7 @@ import androidx.room.Room
 import com.ajts.androidmads.library.SQLiteToExcel
 import com.example.getcellinfos.activities.SettingActivity
 import com.example.getcellinfos.WifiClass.WifiListener
+import com.example.getcellinfos.WifiClass.WifiActivity
 import com.example.getcellinfos.appDatabase.AppDatabase
 import com.example.getcellinfos.appDatabase.CSVExportListener
 import com.example.getcellinfos.dataClass.CellInfo
@@ -51,6 +51,9 @@ class MainActivity : AppCompatActivity() {
     }
     private val addMemoButton: FloatingActionButton by lazy {
         findViewById(R.id.addMemoButton)
+    }
+    private val wifiInfoButton: FloatingActionButton by lazy{
+        findViewById(R.id.wifiInfoButton)
     }
     private val locationTextView: TextView by lazy {
         findViewById(R.id.cellLocationTextView)
@@ -132,6 +135,9 @@ class MainActivity : AppCompatActivity() {
         updateDBButton.setOnClickListener {
             addDataToDB()
         }
+        wifiInfoButton.setOnClickListener {
+            startActivity(Intent(this, WifiActivity::class.java))
+        }
     }
 
     private fun makeMemoDialog() {
@@ -165,7 +171,6 @@ class MainActivity : AppCompatActivity() {
     private fun initManager() {
         initTelephoneManager()
         initLocationManager()
-//        initWifiManager()
     }
 
     @SuppressLint("MissingPermission")
@@ -188,12 +193,6 @@ class MainActivity : AppCompatActivity() {
             moveMap(latitude, longitude)
         }
     }
-
-//    private fun initWifiManager() {
-//        wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
-//        wifiListener = WifiScanListener(this)
-//        wifiScanReceiver = WifiScanReceiver(wifiListener, wifiManager!!)
-//    }
 
 
     override fun onStart() {
@@ -367,27 +366,6 @@ class MainActivity : AppCompatActivity() {
             PhoneStateListener.LISTEN_CELL_INFO
         )
     }
-
-
-//    private fun startCheckingWifi() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            wifiManager?.registerScanResultsCallback(mainExecutor,
-//                object : WifiManager.ScanResultsCallback() {
-//                    override fun onScanResultsAvailable() {
-//                        Log.d("테스트", "Wifi change detected@@@@@")
-//                    }
-//                })
-//        } else {
-//            setupWifiChecking()
-//            wifiManager?.startScan()
-//        }
-//    }
-//
-//    private fun setupWifiChecking() {
-//        val intentFilter = IntentFilter()
-//        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-//        applicationContext.registerReceiver(wifiScanReceiver, intentFilter)
-//    }
 
 
     override fun onPause() {

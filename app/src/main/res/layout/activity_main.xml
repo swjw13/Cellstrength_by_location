@@ -256,15 +256,25 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_baseline_library_books_24"
                     app:layout_constraintBottom_toBottomOf="@id/addDbButton"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/wifiInfoButton"
                     app:layout_constraintStart_toEndOf="@id/addDbButton"
+                    app:layout_constraintTop_toTopOf="@id/addDbButton" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/wifiInfoButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/wifi_tethering"
+                    app:layout_constraintBottom_toBottomOf="@id/addDbButton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/addMemoButton"
                     app:layout_constraintTop_toTopOf="@id/addDbButton" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="50dp"/>
+                android:layout_height="50dp" />
 
         </LinearLayout>
 
