@@ -2,17 +2,14 @@ package com.example.getcellinfos
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.BroadcastReceiver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.telephony.*
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
@@ -23,7 +20,6 @@ import androidx.room.Room
 import com.ajts.androidmads.library.SQLiteToExcel
 import com.example.getcellinfos.Pager.PagerActivity
 import com.example.getcellinfos.activities.SettingActivity
-import com.example.getcellinfos.WifiClass.WifiListener
 import com.example.getcellinfos.appDatabase.AppDatabase
 import com.example.getcellinfos.appDatabase.CSVExportListener
 import com.example.getcellinfos.appDatabase.CellInfo
@@ -52,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     private val addMemoButton: FloatingActionButton by lazy {
         findViewById(R.id.addMemoButton)
     }
-    private val wifiInfoButton: FloatingActionButton by lazy{
+    private val wifiInfoButton: FloatingActionButton by lazy {
         findViewById(R.id.wifiInfoButton)
     }
     private val locationTextView: TextView by lazy {
@@ -78,10 +74,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listenerForLatitude: LocationManagerAdvanced
     private lateinit var listenerForCellInfos: phoneStateListener
 
-    private var wifiManager: WifiManager? = null
-    private lateinit var wifiListener: WifiListener
-    private lateinit var wifiScanReceiver: BroadcastReceiver
-
     private lateinit var retrofitClass: RetrofitClass
 
     private var isPermissionGranted = false
@@ -93,7 +85,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initForActivity()
-
     }
 
     private fun initForActivity() {
@@ -367,7 +358,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-
     override fun onPause() {
         super.onPause()
 
@@ -397,7 +387,6 @@ class MainActivity : AppCompatActivity() {
         locationManager?.removeUpdates(listenerForLatitude)
     }
 
-
     private fun buildDialog(text: String) {
         val builder = AlertDialog.Builder(this)
 
@@ -408,7 +397,6 @@ class MainActivity : AppCompatActivity() {
 
         builder.create().show()
     }
-
 
     private fun addDataToDB() {
         Thread {
@@ -437,7 +425,6 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-
     private fun addDatabaseTimerTask(autotime: Int) {
         if (timer == null) {
             timer = Timer()
@@ -459,7 +446,6 @@ class MainActivity : AppCompatActivity() {
             }
         }.start()
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.activity_main_menu, menu)
@@ -488,14 +474,13 @@ class MainActivity : AppCompatActivity() {
     private fun getStationInfo() {
         Thread {
             retrofitClass.getInstance().getStationInfo(
-                enbld=listenerForCellInfos.list[7], cellNum=listenerForCellInfos.list[8]
+                enbld = listenerForCellInfos.list[7], cellNum = listenerForCellInfos.list[8]
             ).enqueue(object : Callback<RetrofitDto> {
                 override fun onResponse(call: Call<RetrofitDto>, response: Response<RetrofitDto>) {
                     if (response.isSuccessful) {
-                        Log.d("jae", response.body().toString())
                         Toast.makeText(
                             this@MainActivity,
-                            "기지국 정보 가져오기에 성하였습니다.",
+                            "기지국 정보 가져오기에 성gong하였습니다.",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {

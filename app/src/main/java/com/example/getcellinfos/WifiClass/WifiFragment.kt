@@ -37,7 +37,7 @@ class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
         initForActivity()
     }
 
-    private fun initForActivity(){
+    private fun initForActivity() {
         initRecyclerView()
         initWifiManager()
     }
@@ -47,7 +47,7 @@ class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
         startCheckingWifi()
     }
 
-    private fun initRecyclerView(){
+    private fun initRecyclerView() {
         wifiRecyclerView = view?.findViewById(R.id.wifiListRecyclerView)
         adapter = WifiRecyclerViewAdapter()
         wifiRecyclerView?.layoutManager = LinearLayoutManager(fragmentActivity)
@@ -74,7 +74,7 @@ class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateManager(data: MutableList<WifiDataUnit>){
+    private fun updateManager(data: MutableList<WifiDataUnit>) {
         adapter.list = data
         adapter.notifyDataSetChanged()
     }
