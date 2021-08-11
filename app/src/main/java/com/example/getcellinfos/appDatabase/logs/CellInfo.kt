@@ -1,8 +1,9 @@
-package com.example.getcellinfos.appDatabase
+package com.example.getcellinfos.appDatabase.logs
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.getcellinfos.appDatabase.DatabaseDto
 
 @Entity
 data class CellInfo(
@@ -20,4 +21,4 @@ data class CellInfo(
     @ColumnInfo(name = "Earfcn") val earfcn: Int,
     @ColumnInfo(name = "NeighborCell") val neighborCell: Int,
     @ColumnInfo(name = "Memo") val memo: String
-)
+): DatabaseDto

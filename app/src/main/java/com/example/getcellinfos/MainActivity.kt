@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.telephony.*
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
@@ -22,7 +23,9 @@ import com.example.getcellinfos.Pager.PagerActivity
 import com.example.getcellinfos.activities.SettingActivity
 import com.example.getcellinfos.appDatabase.AppDatabase
 import com.example.getcellinfos.appDatabase.CSVExportListener
-import com.example.getcellinfos.appDatabase.CellInfo
+import com.example.getcellinfos.appDatabase.DatabaseBuilder
+import com.example.getcellinfos.appDatabase.DatabaseManager
+import com.example.getcellinfos.appDatabase.logs.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.listener.phoneStateListener
 import com.example.getcellinfos.retrofit.RetrofitClass
@@ -80,6 +83,8 @@ class MainActivity : AppCompatActivity() {
     private var settingNumber = 1
     private var Memos = ""
 
+    private lateinit var databaseManager: DatabaseManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -100,7 +105,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initDatabase() {
-        database = Room.databaseBuilder(this, AppDatabase::class.java, "CellInfo").build()
+        databaseManager = DatabaseBuilder(this).getInstance("log")!!
     }
 
     @SuppressLint("MissingPermission")
@@ -399,30 +404,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addDataToDB() {
-        Thread {
-            database.cellInfoDto().insertLog(
-                CellInfo(
-                    uid = null,
-                    date = getCurrentTimeFromFormat("yyyy-MM-dd"),
-                    time = getCurrentTimeFromFormat("hh:mm:ss"),
-                    latitude = listenerForLatitude.latitude.toString(),
-                    longitude = listenerForLatitude.longitude.toString(),
-                    altitude = listenerForLatitude.altitude.toString(),
-                    rsrp = listenerForSignalStrength.list[0],
-                    rsrq = listenerForSignalStrength.list[1],
-                    rssi = listenerForSignalStrength.list[2],
-                    rssnr = listenerForSignalStrength.list[3],
-                    earfcn = listenerForCellInfos.list[4],
-                    pci = listenerForCellInfos.list[5],
-                    neighborCell = listenerForCellInfos.list[6],
-                    memo = Memos
-                )
+        databaseManager.insert(
+            CellInfo(
+                uid = null,
+                date = getCurrentTimeFromFormat("yyyy-MM-dd"),
+                time = getCurrentTimeFromFormat("hh:mm:ss"),
+                latitude = listenerForLatitude.latitude.toString(),
+                longitude = listenerForLatitude.longitude.toString(),
+                altitude = listenerForLatitude.altitude.toString(),
+                rsrp = listenerForSignalStrength.list[0],
+                rsrq = listenerForSignalStrength.list[1],
+                rssi = listenerForSignalStrength.list[2],
+                rssnr = listenerForSignalStrength.list[3],
+                earfcn = listenerForCellInfos.list[4],
+                pci = listenerForCellInfos.list[5],
+                neighborCell = listenerForCellInfos.list[6],
+                memo = Memos
             )
-            Memos = ""
-            runOnUiThread {
-                Toast.makeText(this, "로그 등록 완료", Toast.LENGTH_SHORT).show()
-            }
-        }.start()
+        )
+        Memos = ""
+        Toast.makeText(this, "로그 등록 완료", Toast.LENGTH_SHORT).show()
+//        Thread {
+//            database.cellInfoDto().insert(
+//                CellInfo(
+//                    uid = null,
+//                    date = getCurrentTimeFromFormat("yyyy-MM-dd"),
+//                    time = getCurrentTimeFromFormat("hh:mm:ss"),
+//                    latitude = listenerForLatitude.latitude.toString(),
+//                    longitude = listenerForLatitude.longitude.toString(),
+//                    altitude = listenerForLatitude.altitude.toString(),
+//                    rsrp = listenerForSignalStrength.list[0],
+//                    rsrq = listenerForSignalStrength.list[1],
+//                    rssi = listenerForSignalStrength.list[2],
+//                    rssnr = listenerForSignalStrength.list[3],
+//                    earfcn = listenerForCellInfos.list[4],
+//                    pci = listenerForCellInfos.list[5],
+//                    neighborCell = listenerForCellInfos.list[6],
+//                    memo = Memos
+//                )
+//            )
+//            Memos = ""
+//            runOnUiThread {
+//                Toast.makeText(this, "로그 등록 완료", Toast.LENGTH_SHORT).show()
+//            }
+//        }.start()
     }
 
     private fun addDatabaseTimerTask(autotime: Int) {
@@ -439,12 +464,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteDBTable() {
-        Thread {
-            database.cellInfoDto().clearTable()
-            runOnUiThread {
-                Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
-            }
-        }.start()
+
+        databaseManager.deleteAll()
+        Toast.makeText(this, "로그 삭제 완료", Toast.LENGTH_SHORT).show()
+//        Thread {
+//            database.cellInfoDto().clearTable()
+//            runOnUiThread {
+//                Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
+//            }
+//        }.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -472,31 +500,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getStationInfo() {
-        Thread {
-            retrofitClass.getInstance().getStationInfo(
-                enbld = listenerForCellInfos.list[7], cellNum = listenerForCellInfos.list[8]
-            ).enqueue(object : Callback<RetrofitDto> {
-                override fun onResponse(call: Call<RetrofitDto>, response: Response<RetrofitDto>) {
-                    if (response.isSuccessful) {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "기지국 정보 가져오기에 성gong하였습니다.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "기지국 정보 가져오기에 실패하였습니다. because " + response.message(),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
 
-                override fun onFailure(call: Call<RetrofitDto>, t: Throwable) {
-                    Toast.makeText(this@MainActivity, t.localizedMessage, Toast.LENGTH_SHORT).show()
+        Log.d("jae", listenerForCellInfos.list[7].toString() + " and " + listenerForCellInfos.list[8].toString())
+
+        retrofitClass.getInstance().getStationInfo(
+            enbId = listenerForCellInfos.list[7], cellNum = listenerForCellInfos.list[8]
+        ).enqueue(object : Callback<RetrofitDto> {
+            override fun onResponse(call: Call<RetrofitDto>, response: Response<RetrofitDto>) {
+                if (response.isSuccessful) {
+                    Log.d("jae", response.body().toString())
+                } else {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "기지국 정보 가져오기에 실패하였습니다. because " + response.message(),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-            })
-        }.start()
+            }
+
+            override fun onFailure(call: Call<RetrofitDto>, t: Throwable) {
+                Toast.makeText(this@MainActivity, t.localizedMessage, Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     @SuppressLint("SimpleDateFormat")
