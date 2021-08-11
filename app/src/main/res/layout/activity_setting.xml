@@ -17,11 +17,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
+            android:id="@+id/noTimerRadio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/realtime_update_korean" />
 
         <RadioButton
+            android:id="@+id/timerRadio"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/realtim_log_korean"/>

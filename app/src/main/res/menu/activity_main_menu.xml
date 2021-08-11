@@ -13,4 +13,7 @@
         android:id="@+id/deleteDB"
         android:title="@string/clear_string"/>
 
+    <item
+        android:id="@+id/retrofitStart"
+        android:title="get"/>
 </menu>

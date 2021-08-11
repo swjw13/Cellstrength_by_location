@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.wifi.WifiManager
@@ -17,7 +16,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -25,16 +23,22 @@ import androidx.room.Room
 import com.ajts.androidmads.library.SQLiteToExcel
 import com.example.getcellinfos.activities.SettingActivity
 import com.example.getcellinfos.WifiClass.WifiListener
+import com.example.getcellinfos.WifiClass.WifiActivity
 import com.example.getcellinfos.appDatabase.AppDatabase
 import com.example.getcellinfos.appDatabase.CSVExportListener
 import com.example.getcellinfos.dataClass.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.listener.phoneStateListener
+import com.example.getcellinfos.retrofit.RetrofitClass
+import com.example.getcellinfos.retrofit.RetrofitDto
 import com.example.getcellinfos.threadActivity.timerTask
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -47,6 +51,9 @@ class MainActivity : AppCompatActivity() {
     }
     private val addMemoButton: FloatingActionButton by lazy {
         findViewById(R.id.addMemoButton)
+    }
+    private val wifiInfoButton: FloatingActionButton by lazy{
+        findViewById(R.id.wifiInfoButton)
     }
     private val locationTextView: TextView by lazy {
         findViewById(R.id.cellLocationTextView)
@@ -63,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     private var locationManager: LocationManager? = null
     private var subscriptionManager: SubscriptionManager? = null
     private var telephonyManager: TelephonyManager? = null
-    private var tm1: TelephonyManager? = null
+    private var telephonyManagerWithSubscriptionId: TelephonyManager? = null
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
 
@@ -75,25 +82,30 @@ class MainActivity : AppCompatActivity() {
     private lateinit var wifiListener: WifiListener
     private lateinit var wifiScanReceiver: BroadcastReceiver
 
-    private var isPermissionGranted = false
-    private var settingNumber = 2
-    private var Memos = ""
-    private var neighborCell: Int? = 0
+    private lateinit var retrofitClass: RetrofitClass
 
-    @RequiresApi(Build.VERSION_CODES.Q)
+    private var isPermissionGranted = false
+    private var settingNumber = 1
+    private var Memos = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         initForActivity()
+
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initForActivity() {
         initDatabase()
         initMap()
         initButtonListener()
         initManager()
+        initRetrofitService()
+    }
+
+    private fun initRetrofitService() {
+        retrofitClass = RetrofitClass()
     }
 
     private fun initDatabase() {
@@ -122,6 +134,9 @@ class MainActivity : AppCompatActivity() {
         }
         updateDBButton.setOnClickListener {
             addDataToDB()
+        }
+        wifiInfoButton.setOnClickListener {
+            startActivity(Intent(this, WifiActivity::class.java))
         }
     }
 
@@ -153,34 +168,31 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initManager() {
         initTelephoneManager()
         initLocationManager()
-//        initWifiManager()
     }
 
+    @SuppressLint("MissingPermission")
     private fun initTelephoneManager() {
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
         subscriptionManager =
             getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         listenerForSignalStrength = phoneStateListener(mainScrollView)
         listenerForCellInfos = phoneStateListener(mainScrollView)
+
+        subscriptionManager?.getActiveSubscriptionInfoForSimSlotIndex(0)
+        telephonyManagerWithSubscriptionId = telephonyManager?.createForSubscriptionId(
+            subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
+        )
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initLocationManager() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         listenerForLatitude = LocationManagerAdvanced(locationTextView) { latitude, longitude ->
             moveMap(latitude, longitude)
         }
     }
-
-//    private fun initWifiManager() {
-//        wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
-//        wifiListener = WifiScanListener(this)
-//        wifiScanReceiver = WifiScanReceiver(wifiListener, wifiManager!!)
-//    }
 
 
     override fun onStart() {
@@ -239,14 +251,14 @@ class MainActivity : AppCompatActivity() {
                 if (grantResults.isNotEmpty()) {
                     grantResults.forEach { permission ->
                         if (permission != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(this, "권한이 거부되었습니다.1", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
                             finish()
                         }
                     }
                     isPermissionGranted = true
                     checkPhoneStateIfAvailable()
                 } else {
-                    Toast.makeText(this, "권한이 거부되었습니다.2", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
@@ -292,11 +304,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGettingInfo() {
-        acquireSettings()
+        settingNumber = acquireSettings()
 
         // TODO: 기지국 정보를 받아와서 저장하기 (이후 맵에 추가)
 
         if (isPermissionGranted) {
+
             when (settingNumber) {
                 1 -> {
                     startGettingInformation()
@@ -310,11 +323,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun startGettingInformationWithTimertask() {
         startGettingInformation()
-        addTimerTask(intent?.getIntExtra("autoTime", 0) ?: 1)
+        addDatabaseTimerTask(intent?.getIntExtra("autoTime", 0) ?: 1)
     }
 
-    private fun acquireSettings() {
-        settingNumber = intent?.getIntExtra("settingNumber", 1) ?: 1
+    private fun acquireSettings(): Int {
+        return intent?.getIntExtra("settingNumber", 1) ?: 1
     }
 
     private fun moveMap(latitude: Double, longitude: Double) {
@@ -343,37 +356,16 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    @SuppressLint("MissingPermission")
     private fun startListeningWithSid() {
-        val subId1 =
-            subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
-
-        tm1 = telephonyManager?.createForSubscriptionId(subId1)
-
-        tm1?.listen(listenerForSignalStrength, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
-        tm1?.listen(listenerForCellInfos, PhoneStateListener.LISTEN_CELL_INFO)
+        telephonyManagerWithSubscriptionId?.listen(
+            listenerForSignalStrength,
+            PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
+        )
+        telephonyManagerWithSubscriptionId?.listen(
+            listenerForCellInfos,
+            PhoneStateListener.LISTEN_CELL_INFO
+        )
     }
-
-
-//    private fun startCheckingWifi() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            wifiManager?.registerScanResultsCallback(mainExecutor,
-//                object : WifiManager.ScanResultsCallback() {
-//                    override fun onScanResultsAvailable() {
-//                        Log.d("테스트", "Wifi change detected@@@@@")
-//                    }
-//                })
-//        } else {
-//            setupWifiChecking()
-//            wifiManager?.startScan()
-//        }
-//    }
-//
-//    private fun setupWifiChecking() {
-//        val intentFilter = IntentFilter()
-//        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-//        applicationContext.registerReceiver(wifiScanReceiver, intentFilter)
-//    }
 
 
     override fun onPause() {
@@ -388,8 +380,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopPhoneStateListener() {
-        tm1?.listen(listenerForSignalStrength, PhoneStateListener.LISTEN_NONE)
-        tm1?.listen(listenerForCellInfos, PhoneStateListener.LISTEN_NONE)
+        telephonyManagerWithSubscriptionId?.listen(
+            listenerForSignalStrength,
+            PhoneStateListener.LISTEN_NONE
+        )
+        telephonyManagerWithSubscriptionId?.listen(
+            listenerForCellInfos,
+            PhoneStateListener.LISTEN_NONE
+        )
         timer?.cancel()
         timer = null
         timerTask = null
@@ -417,8 +415,8 @@ class MainActivity : AppCompatActivity() {
             database.cellInfoDto().insertLog(
                 CellInfo(
                     uid = null,
-                    date = getDateFormat("yyyy-MM-dd"),
-                    time = getDateFormat("hh:mm:ss"),
+                    date = getCurrentTimeFromFormat("yyyy-MM-dd"),
+                    time = getCurrentTimeFromFormat("hh:mm:ss"),
                     latitude = listenerForLatitude.latitude.toString(),
                     longitude = listenerForLatitude.longitude.toString(),
                     altitude = listenerForLatitude.altitude.toString(),
@@ -440,7 +438,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun addTimerTask(autotime: Int) {
+    private fun addDatabaseTimerTask(autotime: Int) {
         if (timer == null) {
             timer = Timer()
         }
@@ -480,12 +478,44 @@ class MainActivity : AppCompatActivity() {
             R.id.deleteDB -> {
                 deleteDBTable()
             }
+            R.id.retrofitStart -> {
+                getStationInfo()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
 
+    private fun getStationInfo() {
+        Thread {
+            retrofitClass.service.getStationInfo(
+                listenerForCellInfos.list[6], listenerForCellInfos.list[7]
+            ).enqueue(object : Callback<RetrofitDto> {
+                override fun onResponse(call: Call<RetrofitDto>, response: Response<RetrofitDto>) {
+                    if (response.isSuccessful) {
+                        Log.d("jae", response.body().toString())
+                        Toast.makeText(
+                            this@MainActivity,
+                            "기지국 정보 가져오기에 성하였습니다.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "기지국 정보 가져오기에 실패하였습니다. because " + response.message(),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<RetrofitDto>, t: Throwable) {
+                    Toast.makeText(this@MainActivity, t.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+        }.start()
+    }
+
     @SuppressLint("SimpleDateFormat")
-    private fun getDateFormat(pattern: String): String {
+    private fun getCurrentTimeFromFormat(pattern: String): String {
         val date = Date(System.currentTimeMillis())
         val dateFormat = SimpleDateFormat(pattern)
         return dateFormat.format(date)

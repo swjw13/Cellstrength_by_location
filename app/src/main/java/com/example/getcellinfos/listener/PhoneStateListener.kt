@@ -2,6 +2,7 @@ package com.example.getcellinfos.listener
 
 import android.os.Build
 import android.telephony.*
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.example.getcellinfos.R
@@ -9,7 +10,7 @@ import com.example.getcellinfos.R
 
 class phoneStateListener(val context: View) : PhoneStateListener() {
 
-    var list = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+    var list = mutableListOf(0, 0, 0, 0, 0, 0, 0, 0, 0)
 
     override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
         super.onSignalStrengthsChanged(signalStrength)
@@ -43,11 +44,17 @@ class phoneStateListener(val context: View) : PhoneStateListener() {
                 if ((m is CellInfoLte) && m.isRegistered) {
                     list[4] = m.cellIdentity.earfcn
                     context.findViewById<TextView>(R.id.earfcnTextView).text =
-                        m.cellIdentity.earfcn.toString()
+                        list[4].toString()
 
                     list[5] = m.cellIdentity.pci
                     context.findViewById<TextView>(R.id.pciTextView).text =
-                        m.cellIdentity.pci.toString()
+                        list[5].toString()
+
+//                    list[6] = m.cellIdentity.ci
+                    val bit_enbid = 0b1111111111111111111100000000
+                    val bit_cellnum = 0b11111100
+                    list[6] = m.cellIdentity.ci and bit_enbid
+                    list[7] = m.cellIdentity.ci and bit_cellnum
                 }
             }
         }

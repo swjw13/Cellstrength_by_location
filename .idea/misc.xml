@@ -9,10 +9,14 @@
         <entry key="app/src/main/res/drawable/ic_baseline_library_books_24.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/drawable/ic_baseline_update_24.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.21822916666666667" />
+        <entry key="app/src/main/res/drawable/wifi_image.xml" value="0.21510416666666668" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.17844202898550723" />
-        <entry key="app/src/main/res/layout/activity_setting.xml" value="0.18161094224924013" />
+        <entry key="app/src/main/res/layout/activity_setting.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_wifi.xml" value="0.17184737446765044" />
         <entry key="app/src/main/res/layout/memo_dialog.xml" value="0.18161094224924013" />
         <entry key="app/src/main/res/layout/time_dialog.xml" value="0.3020833333333333" />
+        <entry key="app/src/main/res/layout/wifi_list_recyclerview_item.xml" value="0.19895833333333332" />
+        <entry key="app/src/main/res/menu/activity_main_menu.xml" value="0.3676923076923077" />
       </map>
     </option>
   </component>

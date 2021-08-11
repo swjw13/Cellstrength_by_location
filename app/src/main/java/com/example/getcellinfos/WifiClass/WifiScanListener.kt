@@ -1,20 +1,23 @@
 package com.example.getcellinfos.WifiClass
 
-import android.app.Activity
 import android.net.wifi.ScanResult
+import android.util.Log
 
-class WifiScanListener(val context: Activity) : WifiListener {
+class WifiScanListener(val action: (MutableList<WifiDataUnit>) -> Unit) : WifiListener {
     override fun scanSuccess(list: List<ScanResult>) {
-        var text = "wifi list \n"
-        list.forEach {
-            text += it.SSID + " / " + it.level + " / " + it.timestamp + '\n'
+        list.sortedBy {
+            it.level
         }
-//        context.findViewById<TextView>(R.id.cellWifiInfoTextView).text = text
-
-//        GlobalApplication.WifiList = text
+        val dataList = mutableListOf<WifiDataUnit>()
+        for(i in list){
+            if(i.SSID.isNotEmpty()) {
+                dataList.add(WifiDataUnit(i.SSID, i.BSSID, i.level, i.capabilities))
+            }
+        }
+        action(dataList)
     }
 
     override fun scanFailure() {
-//        context.findViewById<TextView>(R.id.cellWifiInfoTextView).text = "Scan Failure"
+        Log.d("jae", "scan Failed")
     }
 }
