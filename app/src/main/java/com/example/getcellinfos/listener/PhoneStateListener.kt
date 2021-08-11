@@ -50,11 +50,11 @@ class phoneStateListener(val context: View) : PhoneStateListener() {
                     context.findViewById<TextView>(R.id.pciTextView).text =
                         list[5].toString()
 
-//                    list[6] = m.cellIdentity.ci
-                    val bit_enbid = 0b1111111111111111111100000000
+                    val bit_enbld = 0b1111111111111111111100000000
                     val bit_cellnum = 0b11111100
-                    list[6] = m.cellIdentity.ci and bit_enbid
-                    list[7] = m.cellIdentity.ci and bit_cellnum
+                    list[7] = (m.cellIdentity.ci and bit_enbld) shr 8
+                    list[8] = m.cellIdentity.ci and bit_cellnum shr 2
+                    Log.d("jae", list[7].toString() + " and " + list[8].toString())
                 }
             }
         }

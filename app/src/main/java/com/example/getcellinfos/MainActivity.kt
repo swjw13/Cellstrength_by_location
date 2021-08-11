@@ -488,7 +488,7 @@ class MainActivity : AppCompatActivity() {
     private fun getStationInfo() {
         Thread {
             retrofitClass.getInstance().getStationInfo(
-                listenerForCellInfos.list[6], listenerForCellInfos.list[7]
+                enbld=listenerForCellInfos.list[7], cellNum=listenerForCellInfos.list[8]
             ).enqueue(object : Callback<RetrofitDto> {
                 override fun onResponse(call: Call<RetrofitDto>, response: Response<RetrofitDto>) {
                     if (response.isSuccessful) {

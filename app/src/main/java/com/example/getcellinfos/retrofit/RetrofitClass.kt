@@ -10,8 +10,7 @@ class RetrofitClass {
         .build()
 
 
-
     private val service: RetrofitService = retrofit.create(RetrofitService::class.java)
 
-    fun getInstance():RetrofitService = service
+    fun getInstance(): RetrofitService = service
 }
