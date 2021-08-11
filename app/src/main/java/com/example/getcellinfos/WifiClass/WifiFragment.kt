@@ -1,52 +1,61 @@
 package com.example.getcellinfos.WifiClass
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
+import android.content.Context.WIFI_SERVICE
 import android.content.IntentFilter
 import android.net.wifi.WifiManager
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.TextView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.getcellinfos.R
-import com.example.getcellinfos.WifiClass.WifiListener
-import com.example.getcellinfos.WifiClass.WifiScanListener
-import com.example.getcellinfos.WifiClass.WifiScanReceiver
 
-class WifiActivity : AppCompatActivity() {
-
-    private val wifiRecyclerView: RecyclerView by lazy {
-        findViewById(R.id.wifiListRecyclerView)
-    }
+class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
 
     private lateinit var adapter: WifiRecyclerViewAdapter
+    private var wifiRecyclerView: RecyclerView? = null
 
     private var wifiManager: WifiManager? = null
     private lateinit var wifiListener: WifiListener
     private lateinit var wifiScanReceiver: BroadcastReceiver
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_wifi)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.activity_wifi, container, false)
+    }
 
+    override fun onStart() {
+        super.onStart()
         initForActivity()
     }
+
     private fun initForActivity(){
-        initWifiManager()
-        startCheckingWifi()
         initRecyclerView()
+        initWifiManager()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startCheckingWifi()
     }
 
     private fun initRecyclerView(){
+        wifiRecyclerView = view?.findViewById(R.id.wifiListRecyclerView)
         adapter = WifiRecyclerViewAdapter()
-        wifiRecyclerView.layoutManager = LinearLayoutManager(this)
-        wifiRecyclerView.adapter = adapter
+        wifiRecyclerView?.layoutManager = LinearLayoutManager(fragmentActivity)
+        wifiRecyclerView?.adapter = adapter
     }
 
     private fun initWifiManager() {
-        wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+        wifiManager = context?.getSystemService(WIFI_SERVICE) as WifiManager
         wifiListener = WifiScanListener { data ->
             updateManager(data)
         }
@@ -61,20 +70,18 @@ class WifiActivity : AppCompatActivity() {
     private fun setupWifiChecking() {
         val intentFilter = IntentFilter()
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-        this.registerReceiver(wifiScanReceiver, intentFilter)
+        context?.registerReceiver(wifiScanReceiver, intentFilter)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun updateManager(data: MutableList<WifiDataUnit>){
         adapter.list = data
         adapter.notifyDataSetChanged()
     }
 
 
-
     override fun onStop() {
         super.onStop()
-        this.unregisterReceiver(wifiScanReceiver)
+        context?.unregisterReceiver(wifiScanReceiver)
     }
-
-
 }

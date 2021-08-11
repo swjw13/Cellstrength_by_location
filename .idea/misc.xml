@@ -11,6 +11,7 @@
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/drawable/wifi_image.xml" value="0.21510416666666668" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.17844202898550723" />
+        <entry key="app/src/main/res/layout/activity_pager.xml" value="0.20625" />
         <entry key="app/src/main/res/layout/activity_setting.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_wifi.xml" value="0.17184737446765044" />
         <entry key="app/src/main/res/layout/memo_dialog.xml" value="0.18161094224924013" />

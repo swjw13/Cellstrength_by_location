@@ -21,12 +21,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.room.Room
 import com.ajts.androidmads.library.SQLiteToExcel
+import com.example.getcellinfos.Pager.PagerActivity
 import com.example.getcellinfos.activities.SettingActivity
 import com.example.getcellinfos.WifiClass.WifiListener
-import com.example.getcellinfos.WifiClass.WifiActivity
 import com.example.getcellinfos.appDatabase.AppDatabase
 import com.example.getcellinfos.appDatabase.CSVExportListener
-import com.example.getcellinfos.dataClass.CellInfo
+import com.example.getcellinfos.appDatabase.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.listener.phoneStateListener
 import com.example.getcellinfos.retrofit.RetrofitClass
@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
             addDataToDB()
         }
         wifiInfoButton.setOnClickListener {
-            startActivity(Intent(this, WifiActivity::class.java))
+            startActivity(Intent(this, PagerActivity::class.java))
         }
     }
 
@@ -487,7 +487,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getStationInfo() {
         Thread {
-            retrofitClass.service.getStationInfo(
+            retrofitClass.getInstance().getStationInfo(
                 listenerForCellInfos.list[6], listenerForCellInfos.list[7]
             ).enqueue(object : Callback<RetrofitDto> {
                 override fun onResponse(call: Call<RetrofitDto>, response: Response<RetrofitDto>) {

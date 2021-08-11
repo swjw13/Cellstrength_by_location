@@ -1,4 +1,4 @@
-package com.example.getcellinfos.dataClass
+package com.example.getcellinfos.appDatabase
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
