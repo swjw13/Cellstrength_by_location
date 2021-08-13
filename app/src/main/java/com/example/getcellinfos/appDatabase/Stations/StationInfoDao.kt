@@ -8,7 +8,7 @@ import androidx.room.Query
 interface StationInfoDao {
 
     @Insert
-    fun insert(station: StationInfoDatabaseDTO)
+    fun insertStation(station: StationInfoDatabaseDTO)
 
     @Query("DELETE FROM stationinfodatabasedto")
     fun clearTable()

@@ -20,5 +20,11 @@ data class CellInfo(
     @ColumnInfo(name = "Pci") val pci: Int,
     @ColumnInfo(name = "Earfcn") val earfcn: Int,
     @ColumnInfo(name = "NeighborCell") val neighborCell: Int,
-    @ColumnInfo(name = "Memo") val memo: String
+    @ColumnInfo(name = "Memo") val memo: String,
+    @ColumnInfo(name = "Other Cell Rsrp") val other_cell_rsrp: String,
+    @ColumnInfo(name = "Other Cell Rsrq") val other_cell_rsrq: String,
+    @ColumnInfo(name = "Other Cell Rssi") val other_cell_rssi: String,
+    @ColumnInfo(name = "Other Cell Rssnr") val other_cell_rssnr: String,
+    @ColumnInfo(name = "Other Cell Earfcn") val other_cell_earfcn: String,
+    @ColumnInfo(name = "Other Cell Pci") val other_cell_Pci: String
 ): DatabaseDto

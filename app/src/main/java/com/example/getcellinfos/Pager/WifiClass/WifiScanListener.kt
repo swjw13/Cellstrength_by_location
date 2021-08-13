@@ -1,4 +1,4 @@
-package com.example.getcellinfos.WifiClass
+package com.example.getcellinfos.Pager.WifiClass
 
 import android.net.wifi.ScanResult
 import android.util.Log
@@ -11,7 +11,7 @@ class WifiScanListener(val action: (MutableList<WifiDataUnit>) -> Unit) : WifiLi
         val dataList = mutableListOf<WifiDataUnit>()
         for(i in list){
             if(i.SSID.isNotEmpty()) {
-                dataList.add(WifiDataUnit(i.SSID, i.BSSID, i.level, i.capabilities))
+                dataList.add(WifiDataUnit(i.SSID, i.BSSID, i.level, i.capabilities, i.channelWidth, i.frequency))
             }
         }
         action(dataList)

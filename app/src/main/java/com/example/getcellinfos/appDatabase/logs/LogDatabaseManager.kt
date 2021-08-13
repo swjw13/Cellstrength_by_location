@@ -9,12 +9,15 @@ import com.example.getcellinfos.appDatabase.DatabaseDto
 import com.example.getcellinfos.appDatabase.DatabaseManager
 import java.lang.Exception
 
-class LogDatabaseManager(val context: Context) : DatabaseManager {
+class LogDatabaseManager(val context: Context) : DatabaseManager() {
 
     private val database =
         Room.databaseBuilder(context, AppDatabase::class.java, "CellInfo").build()
 
     override fun insert(item: DatabaseDto) {
+        if(Thread.currentThread().isAlive){
+            Thread.currentThread().interrupt()
+        }
         Thread {
             try {
                 database.cellInfoDto().insert(item as CellInfo)
@@ -25,6 +28,9 @@ class LogDatabaseManager(val context: Context) : DatabaseManager {
     }
 
     override fun deleteAll() {
+        if(Thread.currentThread().isAlive){
+            Thread.currentThread().interrupt()
+        }
         Thread{
             try{
                 database.cellInfoDto().clearTable()

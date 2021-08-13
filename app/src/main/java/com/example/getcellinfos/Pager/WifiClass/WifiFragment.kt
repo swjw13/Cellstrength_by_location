@@ -1,4 +1,4 @@
-package com.example.getcellinfos.WifiClass
+package com.example.getcellinfos.Pager.WifiClass
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +24,11 @@ class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
     private var wifiManager: WifiManager? = null
     private lateinit var wifiListener: WifiListener
     private lateinit var wifiScanReceiver: BroadcastReceiver
+
+    var green = 0
+    var yellow = 0
+    var orange = 0
+    var red = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,8 +83,29 @@ class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
     private fun updateManager(data: MutableList<WifiDataUnit>) {
         adapter.list = data
         adapter.notifyDataSetChanged()
+
+        checkColor(data)
     }
 
+    private fun checkColor(data: MutableList<WifiDataUnit>){
+        green = 0
+        yellow = 0
+        orange = 0
+        red = 0
+
+        for (i in data) {
+            when (i.strength) {
+                in -70..0 -> green += 1
+                in -85..-70 -> yellow += 1
+                in -100..-85 -> orange += 1
+                else -> red += 1
+            }
+        }
+        view?.findViewById<TextView>(R.id.green_textView)?.text = green.toString()
+        view?.findViewById<TextView>(R.id.yellow_textView)?.text = yellow.toString()
+        view?.findViewById<TextView>(R.id.orange_textview)?.text = orange.toString()
+        view?.findViewById<TextView>(R.id.red_textView)?.text = red.toString()
+    }
 
     override fun onStop() {
         super.onStop()
