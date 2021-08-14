@@ -15,6 +15,9 @@
         <entry key="app/src/main/res/drawable/oval_shape_red.xml" value="0.2375" />
         <entry key="app/src/main/res/drawable/oval_shape_yellow.xml" value="0.2375" />
         <entry key="app/src/main/res/drawable/wifi_image.xml" value="0.21510416666666668" />
+        <entry key="app/src/main/res/layout/activity_bluetooth.xml" value="0.1875" />
+        <entry key="app/src/main/res/layout/activity_five_gactivity.xml" value="0.22135416666666666" />
+        <entry key="app/src/main/res/layout/activity_gnss.xml" value="0.1887031408308004" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.10237117874497921" />
         <entry key="app/src/main/res/layout/activity_pager.xml" value="0.20625" />
         <entry key="app/src/main/res/layout/activity_setting.xml" value="0.1" />

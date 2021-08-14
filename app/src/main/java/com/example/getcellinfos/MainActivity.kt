@@ -64,9 +64,6 @@ class MainActivity : AppCompatActivity() {
     private val locationTextView: TextView by lazy {
         findViewById(R.id.cellLocationTextView)
     }
-    private val mainScrollView: ScrollView by lazy {
-        findViewById(R.id.scrollMain)
-    }
     private val otherCellsRecyclerView: RecyclerView by lazy {
         findViewById(R.id.otherCellsRecyclerView)
     }
@@ -254,13 +251,16 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+
         selfPermissionCheck(
             arrayOf(
                 android.Manifest.permission.READ_PHONE_STATE,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.BLUETOOTH,
+                android.Manifest.permission.BLUETOOTH_ADMIN
             ), 101
         )
     }
@@ -349,8 +349,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startGettingInfo() {
         settingNumber = acquireSettings()
-
-        // TODO: 기지국 정보를 받아와서 저장하기 (이후 맵에 추가)
 
         if (isPermissionGranted) {
 
