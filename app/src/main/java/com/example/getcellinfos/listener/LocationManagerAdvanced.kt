@@ -3,6 +3,7 @@ package com.example.getcellinfos.listener
 import android.annotation.SuppressLint
 import android.location.Location
 import android.location.LocationListener
+import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 
@@ -23,6 +24,7 @@ class LocationManagerAdvanced(
 
         view?.text = "%.5f".format(latitude) + "/" + "%.5f".format(longitude) + "/" + "%.5f".format(altitude)
         changeMap(latitude, longitude)
+
     }
 
     override fun onProviderEnabled(provider: String) {

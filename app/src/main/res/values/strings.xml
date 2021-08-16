@@ -19,4 +19,6 @@
     <string name="earfcn_string">EARFCN</string>
     <string name="neighbor_cell_text">Neighbor Cell</string>
     <string name="wifi_list_string">wifi List</string>
+    <string name="indoor_string_korean">실내</string>
+    <string name="outdoor_string_korean">실외</string>
 </resources>

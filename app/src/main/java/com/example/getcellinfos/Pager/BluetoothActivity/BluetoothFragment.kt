@@ -22,7 +22,6 @@ class BluetoothFragment(val context: FragmentActivity) : Fragment() {
 
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
-    private lateinit var list: MutableList<Map<String,Int>>
     private lateinit var scanCallback: ScanCallback
 
     override fun onCreateView(
@@ -37,6 +36,7 @@ class BluetoothFragment(val context: FragmentActivity) : Fragment() {
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 super.onScanResult(callbackType, result)
                 Log.d("jae", "onScanResult: $result, callback type: $callbackType")
+                view?.findViewById<TextView>(R.id.bluetooth_first)?.text = result.toString()
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {

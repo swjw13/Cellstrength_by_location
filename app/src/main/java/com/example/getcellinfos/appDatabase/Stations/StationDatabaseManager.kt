@@ -10,8 +10,9 @@ import com.example.getcellinfos.appDatabase.DatabaseManager
 import java.lang.Exception
 
 class StationDatabaseManager(val context: Context): DatabaseManager() {
-    private val database =
-        Room.databaseBuilder(context, AppDatabase::class.java, "CellInfo").build()
+
+    // get AppDatabase: base Database Instance
+    private val database = getDatabaseInstance(context)
 
     override fun insert(item: DatabaseDto) {
 

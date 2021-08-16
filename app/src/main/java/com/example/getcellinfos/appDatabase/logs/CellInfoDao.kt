@@ -7,7 +7,7 @@ import androidx.room.Query
 @Dao
 interface CellInfoDao {
     @Insert
-    fun insert(cellInfo: CellInfo)
+    fun insertCellularLog(cellInfo: CellInfo)
 
     @Query("DELETE FROM cellinfo")
     fun clearTable()

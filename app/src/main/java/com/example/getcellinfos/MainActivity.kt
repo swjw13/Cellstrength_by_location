@@ -100,17 +100,28 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initForActivity()
-        adapter = OtherCellListViewAdapter()
-        otherCellsRecyclerView.layoutManager = LinearLayoutManager(this)
-        otherCellsRecyclerView.adapter = adapter
     }
 
     private fun initForActivity() {
-        initDatabase()
+        initForView()
+        initForService()
+    }
+
+    private fun initForView(){
         initMap()
         initButtonListener()
+        initRecyclerView()
+    }
+    private fun initForService(){
+        initDatabase()
         initManager()
         initRetrofitService()
+    }
+
+    private fun initRecyclerView(){
+        adapter = OtherCellListViewAdapter()
+        otherCellsRecyclerView.layoutManager = LinearLayoutManager(this)
+        otherCellsRecyclerView.adapter = adapter
     }
 
     private fun initRetrofitService() {
@@ -165,18 +176,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun exportCSV() {
         databaseManager.exportCSV(this)
-//        val dir =
-//            Environment.getExternalStorageDirectory().toString() + File.separator + "CellInfo/CSV/"
-//        if (!File(dir).exists()) {
-//            File(dir).mkdirs()
-//        }
-//
-//        val time = System.currentTimeMillis()
-//
-//        val sqlToExcel = SQLiteToExcel(this, "CellInfo", dir)
-//        sqlToExcel.exportAllTables("$time.csv", CSVExportListener { text ->
-//            Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-//        })
     }
 
     private fun initManager() {

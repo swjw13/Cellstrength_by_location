@@ -22,26 +22,22 @@ import org.w3c.dom.Text
 class GnssActivity(val context: FragmentActivity) : Fragment() {
 
     private lateinit var locationManager: LocationManager
-    private lateinit var gpsSateliteList: MutableList<Float>
-    private lateinit var sbasSateliteList: MutableList<Float>
-    private lateinit var glonasSateliteList: MutableList<Float>
-    private lateinit var elseSateliteList: MutableList<Float>
+
+    var gpsSateliteList: MutableList<Float> = mutableListOf()
+    private var sbasSateliteList: MutableList<Float> = mutableListOf()
+    private var glonasSateliteList: MutableList<Float> = mutableListOf()
+    private var elseSateliteList: MutableList<Float> = mutableListOf()
+
+    private lateinit var gnssCallback: GnssStatus.Callback
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         locationManager = context.getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
-        return inflater.inflate(R.layout.activity_gnss, container, false)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    @SuppressLint("MissingPermission")
-    override fun onResume() {
-        super.onResume()
-
-        locationManager.registerGnssStatusCallback(object: GnssStatus.Callback(){
+        gnssCallback = object: GnssStatus.Callback(){
             @SuppressLint("SetTextI18n")
             override fun onSatelliteStatusChanged(status: GnssStatus) {
                 gpsSateliteList = mutableListOf()
@@ -51,9 +47,9 @@ class GnssActivity(val context: FragmentActivity) : Fragment() {
 
                 for (i in 0 until status.satelliteCount - 1) {
                     when (status.getConstellationType(i)) {
-                        1 -> gpsSateliteList.add(status.getCn0DbHz(i))
-                        2 -> sbasSateliteList.add(status.getCn0DbHz(i))
-                        3 -> glonasSateliteList.add(status.getCn0DbHz(i))
+                        GnssStatus.CONSTELLATION_GPS -> gpsSateliteList!!.add(status.getCn0DbHz(i))
+                        GnssStatus.CONSTELLATION_SBAS -> sbasSateliteList.add(status.getCn0DbHz(i))
+                        GnssStatus.CONSTELLATION_GLONASS -> glonasSateliteList.add(status.getCn0DbHz(i))
                         else -> elseSateliteList.add(status.getCn0DbHz(i))
                     }
                 }
@@ -65,16 +61,25 @@ class GnssActivity(val context: FragmentActivity) : Fragment() {
                 view?.findViewById<TextView>(R.id.fourth)?.text = "glonas: $glonasSateliteList"
                 view?.findViewById<TextView>(R.id.fifth)?.text = "else: $elseSateliteList"
             }
-        }, Handler(context.mainLooper))
+        }
+        return inflater.inflate(R.layout.activity_gnss, container, false)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    @SuppressLint("MissingPermission")
+    override fun onResume() {
+        super.onResume()
+
+        locationManager.registerGnssStatusCallback(gnssCallback, Handler(context.mainLooper))
         locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
             0,
-            0.0F,
-            object: LocationListener{
-                override fun onLocationChanged(location: Location) {
+            0.0F
+        ) { }
+    }
 
-                }
-            }
-        )
+    override fun onStop() {
+        super.onStop()
+        locationManager.unregisterGnssStatusCallback(gnssCallback)
     }
 }

@@ -30,6 +30,8 @@ class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
     var orange = 0
     var red = 0
 
+    var powerful_strength = 0
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -83,6 +85,8 @@ class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
     private fun updateManager(data: MutableList<WifiDataUnit>) {
         adapter.list = data
         adapter.notifyDataSetChanged()
+
+        powerful_strength = data[0].strength
 
         checkColor(data)
     }
