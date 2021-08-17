@@ -1,4 +1,4 @@
-package com.example.getcellinfos.appDatabase
+package com.example.getcellinfos.appDatabase.Instance
 
 import com.ajts.androidmads.library.SQLiteToExcel
 

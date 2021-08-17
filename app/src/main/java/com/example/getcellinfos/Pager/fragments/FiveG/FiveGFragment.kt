@@ -1,13 +1,8 @@
-package com.example.getcellinfos.Pager.FiveG
+package com.example.getcellinfos.Pager.fragments.FiveG
 
-import android.bluetooth.BluetoothManager
 import android.net.ConnectivityManager
-import android.net.LinkProperties
-import android.net.Network
-import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
-import android.telecom.TelecomManager
 import android.telephony.CellSignalStrengthNr
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
@@ -17,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity

@@ -3,7 +3,7 @@ package com.example.getcellinfos.appDatabase.InOutPackage
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.getcellinfos.appDatabase.DatabaseDto
+import com.example.getcellinfos.appDatabase.Instance.DatabaseDto
 
 @Entity
 data class InOutData(

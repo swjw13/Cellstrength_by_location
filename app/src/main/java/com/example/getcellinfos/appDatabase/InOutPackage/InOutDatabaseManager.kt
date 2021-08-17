@@ -2,9 +2,8 @@ package com.example.getcellinfos.appDatabase.InOutPackage
 
 import android.content.Context
 import android.widget.Toast
-import com.example.getcellinfos.appDatabase.DatabaseDto
-import com.example.getcellinfos.appDatabase.DatabaseManager
-import com.example.getcellinfos.appDatabase.logs.CellInfo
+import com.example.getcellinfos.appDatabase.Instance.DatabaseDto
+import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import java.lang.Exception
 
 class InOutDatabaseManager(val context: Context): DatabaseManager() {

@@ -1,4 +1,4 @@
-package com.example.getcellinfos.retrofit
+package com.example.getcellinfos.retrofit.retrofitAnswer
 
 import java.io.Serializable
 

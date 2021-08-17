@@ -1,13 +1,9 @@
-package com.example.getcellinfos.appDatabase
+package com.example.getcellinfos.appDatabase.Instance
 
 import android.content.Context
-import android.os.Environment
-import android.widget.Toast
-import com.ajts.androidmads.library.SQLiteToExcel
 import com.example.getcellinfos.appDatabase.InOutPackage.InOutDatabaseManager
 import com.example.getcellinfos.appDatabase.Stations.StationDatabaseManager
 import com.example.getcellinfos.appDatabase.logs.LogDatabaseManager
-import java.io.File
 
 class DatabaseBuilder(val context: Context){
 

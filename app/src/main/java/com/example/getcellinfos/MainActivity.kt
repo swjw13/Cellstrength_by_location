@@ -14,42 +14,34 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
-import com.ajts.androidmads.library.SQLiteToExcel
-import com.example.getcellinfos.Pager.PagerActivity
+import com.example.getcellinfos.Pager.PagerMainActivity.PagerActivity
 import com.example.getcellinfos.activities.SettingActivity
-import com.example.getcellinfos.appDatabase.AppDatabase
-import com.example.getcellinfos.appDatabase.CSVExportListener
-import com.example.getcellinfos.appDatabase.DatabaseBuilder
-import com.example.getcellinfos.appDatabase.DatabaseManager
+import com.example.getcellinfos.appDatabase.Instance.DatabaseBuilder
+import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import com.example.getcellinfos.appDatabase.logs.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.listener.phoneStateListener
 import com.example.getcellinfos.otherCellList.OtherCellListViewAdapter
-import com.example.getcellinfos.retrofit.RetrofitClass
-import com.example.getcellinfos.retrofit.RetrofitDto
-import com.example.getcellinfos.retrofit.StationInfoCallback
+import com.example.getcellinfos.overallService.OverAllClass
+import com.example.getcellinfos.retrofit.retrofitInstance.RetrofitClass
+import com.example.getcellinfos.retrofit.retrofitCallback.StationInfoCallback
 import com.example.getcellinfos.threadActivity.timerTask
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.File
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
-
+@RequiresApi(Build.VERSION_CODES.Q)
 class MainActivity : AppCompatActivity() {
 
     private val updateDBButton: FloatingActionButton by lazy {
@@ -84,6 +76,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listenerForLatitude: LocationManagerAdvanced
     private lateinit var listenerForCellInfos: phoneStateListener
 
+
+
     private lateinit var retrofitClass: RetrofitClass
 
     private var isPermissionGranted = false
@@ -95,11 +89,14 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: OtherCellListViewAdapter
 
+    private lateinit var overallClass: OverAllClass
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         initForActivity()
+        overallClass = OverAllClass(this)
     }
 
     private fun initForActivity() {
@@ -107,18 +104,19 @@ class MainActivity : AppCompatActivity() {
         initForService()
     }
 
-    private fun initForView(){
+    private fun initForView() {
         initMap()
         initButtonListener()
         initRecyclerView()
     }
-    private fun initForService(){
+
+    private fun initForService() {
         initDatabase()
         initManager()
         initRetrofitService()
     }
 
-    private fun initRecyclerView(){
+    private fun initRecyclerView() {
         adapter = OtherCellListViewAdapter()
         otherCellsRecyclerView.layoutManager = LinearLayoutManager(this)
         otherCellsRecyclerView.adapter = adapter
@@ -203,7 +201,6 @@ class MainActivity : AppCompatActivity() {
 
 
         try {
-            subscriptionManager?.getActiveSubscriptionInfoForSimSlotIndex(0)
             telephonyManagerWithSubscriptionId = telephonyManager?.createForSubscriptionId(
                 subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
             )
@@ -212,11 +209,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateMap(lat: Float, lon: Float){
-        if(marker != null){
+    private fun updateMap(lat: Float, lon: Float) {
+        if (marker != null) {
             marker!!.map = null
             marker!!.position = LatLng(lat.toDouble(), lon.toDouble())
-        } else{
+        } else {
             marker = Marker()
             marker!!.position = LatLng(lat.toDouble(), lon.toDouble())
         }
@@ -394,6 +391,8 @@ class MainActivity : AppCompatActivity() {
             0.0F,
             listenerForLatitude
         )
+//        overallClass.locationService()
+//            .listenForLocationUpdate(LocationManager.NETWORK_PROVIDER, listenerForLatitude)
     }
 
     private fun startListeningWithSid() {
@@ -405,6 +404,12 @@ class MainActivity : AppCompatActivity() {
             listenerForCellInfos,
             PhoneStateListener.LISTEN_CELL_INFO
         )
+//        overallClass.cellService().listenForCellUpdate(
+//            listenerForSignalStrength,
+//            PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
+//        )
+//        overallClass.cellService()
+//            .listenForCellUpdate(listenerForCellInfos, PhoneStateListener.LISTEN_CELL_INFO)
     }
 
     override fun onPause() {
@@ -419,6 +424,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopPhoneStateListener() {
+//        overallClass.cellService().stopListening()
         telephonyManagerWithSubscriptionId?.listen(
             listenerForSignalStrength,
             PhoneStateListener.LISTEN_NONE
@@ -432,8 +438,10 @@ class MainActivity : AppCompatActivity() {
         timerTask = null
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun stopLocationUpdate() {
-        locationManager?.removeUpdates(listenerForLatitude)
+//        locationManager?.removeUpdates(listenerForLatitude)
+        overallClass.locationService().stopLocationUpdate()
     }
 
     private fun buildDialog(text: String) {
@@ -454,7 +462,7 @@ class MainActivity : AppCompatActivity() {
         val others_rssnr = mutableListOf<Int>()
         val others_earfcn = mutableListOf<Int>()
         val others_pci = mutableListOf<Int>()
-        for (i in listenerForCellInfos.otherCellList){
+        for (i in listenerForCellInfos.otherCellList) {
             others_rsrp.add(i.rsrp)
             others_rsrq.add(i.rsrq)
             others_rssi.add(i.rssi)
@@ -504,7 +512,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteDBTable() {
-
         databaseManager.deleteAll()
         Toast.makeText(this, "로그 삭제 완료", Toast.LENGTH_SHORT).show()
     }

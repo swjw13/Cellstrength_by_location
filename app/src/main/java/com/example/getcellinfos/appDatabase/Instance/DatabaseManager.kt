@@ -1,4 +1,4 @@
-package com.example.getcellinfos.appDatabase
+package com.example.getcellinfos.appDatabase.Instance
 
 import android.content.Context
 import android.os.Environment

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Pager.FiveG.FiveGFragment">
+    tools:context=".Pager.fragments.FiveG.FiveGFragment">
 
     <TextView
         android:id="@+id/nrRsrpTextView"

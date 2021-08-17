@@ -1,4 +1,4 @@
-package com.example.getcellinfos.appDatabase
+package com.example.getcellinfos.appDatabase.Instance
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

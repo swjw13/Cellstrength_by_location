@@ -1,12 +1,12 @@
-package com.example.getcellinfos.Pager
+package com.example.getcellinfos.Pager.PagerMainActivity
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.getcellinfos.Pager.BluetoothActivity.BluetoothFragment
-import com.example.getcellinfos.Pager.FiveG.FiveGFragment
-import com.example.getcellinfos.Pager.WifiClass.WifiFragment
-import com.example.getcellinfos.Pager.gnssActivity.GnssActivity
+import com.example.getcellinfos.Pager.fragments.BluetoothActivity.BluetoothFragment
+import com.example.getcellinfos.Pager.fragments.FiveG.FiveGFragment
+import com.example.getcellinfos.Pager.fragments.WifiClass.WifiFragment
+import com.example.getcellinfos.Pager.Fragments.gnssActivity.GnssActivity
 
 class PagerAdapter(private val fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {

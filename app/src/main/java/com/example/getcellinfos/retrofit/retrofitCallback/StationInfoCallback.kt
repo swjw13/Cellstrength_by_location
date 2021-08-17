@@ -1,9 +1,10 @@
-package com.example.getcellinfos.retrofit
+package com.example.getcellinfos.retrofit.retrofitCallback
 
 import android.content.Context
 import android.widget.Toast
-import com.example.getcellinfos.appDatabase.DatabaseBuilder
+import com.example.getcellinfos.appDatabase.Instance.DatabaseBuilder
 import com.example.getcellinfos.appDatabase.Stations.StationInfoDatabaseDTO
+import com.example.getcellinfos.retrofit.retrofitAnswer.RetrofitDto
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,14 +31,14 @@ class StationInfoCallback(val context: Context): Callback<RetrofitDto> {
             )
 
             database.insert(stationInfo)
-            Toast.makeText(context, "Data 등록 완", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Data 등록 완료", Toast.LENGTH_SHORT).show()
 
         } else {
             Toast.makeText(context, "No Data Income", Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onFailure(call: Call<com.example.getcellinfos.retrofit.RetrofitDto>, t: Throwable) {
+    override fun onFailure(call: Call<RetrofitDto>, t: Throwable) {
         Toast.makeText(context, "Communication Error", Toast.LENGTH_SHORT).show()
     }
 }

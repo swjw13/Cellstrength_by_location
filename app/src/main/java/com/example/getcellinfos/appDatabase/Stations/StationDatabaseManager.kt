@@ -3,10 +3,8 @@ package com.example.getcellinfos.appDatabase.Stations
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.room.Room
-import com.example.getcellinfos.appDatabase.AppDatabase
-import com.example.getcellinfos.appDatabase.DatabaseDto
-import com.example.getcellinfos.appDatabase.DatabaseManager
+import com.example.getcellinfos.appDatabase.Instance.DatabaseDto
+import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import java.lang.Exception
 
 class StationDatabaseManager(val context: Context): DatabaseManager() {

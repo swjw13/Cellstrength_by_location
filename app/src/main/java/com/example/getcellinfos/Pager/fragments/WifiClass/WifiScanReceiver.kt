@@ -1,4 +1,4 @@
-package com.example.getcellinfos.Pager.WifiClass
+package com.example.getcellinfos.Pager.fragments.WifiClass
 
 import android.content.BroadcastReceiver
 import android.content.Context

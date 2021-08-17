@@ -1,4 +1,4 @@
-package com.example.getcellinfos.Pager.BluetoothActivity
+package com.example.getcellinfos.Pager.fragments.BluetoothActivity
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter

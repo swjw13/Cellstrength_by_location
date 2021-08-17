@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Pager.WifiClass.WifiFragment">
+    tools:context=".Pager.fragments.WifiClass.WifiFragment">
 
     <TextView
         android:id="@+id/wifiListTextView"

@@ -1,4 +1,4 @@
-package com.example.getcellinfos.Pager
+package com.example.getcellinfos.Pager.PagerMainActivity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,8 +7,8 @@ import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.viewpager2.widget.ViewPager2
 import com.example.getcellinfos.R
-import com.example.getcellinfos.appDatabase.DatabaseBuilder
-import com.example.getcellinfos.appDatabase.DatabaseManager
+import com.example.getcellinfos.appDatabase.Instance.DatabaseBuilder
+import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import com.example.getcellinfos.appDatabase.InOutPackage.InOutData
 import com.example.getcellinfos.threadActivity.timerTask
 import java.lang.Exception
@@ -64,11 +64,13 @@ class PagerActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
-
         }
+
         recordEndButton.setOnClickListener {
             try {
                 timer?.cancel()
+                timer = null
+                timerTask = null
             } catch (e: Exception) {
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
             }
@@ -85,6 +87,7 @@ class PagerActivity : AppCompatActivity() {
                 updateDB()
             }
         }
+
         timer?.schedule(timerTask, 1000 * autotime.toLong(), 1000 * autotime.toLong())
     }
 
