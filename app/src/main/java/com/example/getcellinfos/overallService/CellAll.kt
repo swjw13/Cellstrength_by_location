@@ -64,7 +64,7 @@ class CellAll(val context: Context) {
         telephonyManagerWithSubscriptionId?.listen(mCellularListener, PhoneStateListener.LISTEN_NONE)
     }
     
-    fun getStrengthList(): List<Int>{
+    fun getCellList(): List<Int>{
         return if((mStrengthListener != null) && (mCellularListener != null)){
             mStrengthListener!!.getStrengthList() + mCellularListener!!.getCellList()
         } else{

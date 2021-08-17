@@ -29,7 +29,6 @@ class InOutDatabaseManager(val context: Context): DatabaseManager() {
     }
 
     override fun deleteAll() {
-
         if(Thread.currentThread().isAlive){
             Thread.currentThread().interrupt()
         }

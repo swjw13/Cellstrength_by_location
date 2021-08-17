@@ -12,9 +12,9 @@ class LocationManagerAdvanced(
     private val changeMap: (Double, Double) -> Unit
 ) : LocationListener {
 
-    var latitude = 0.00
-    var longitude = 0.00
-    var altitude = 0.00
+    private var latitude = 0.00
+    private var longitude = 0.00
+    private var altitude = 0.00
 
     @SuppressLint("SetTextI18n")
     override fun onLocationChanged(location: Location) {
@@ -24,7 +24,6 @@ class LocationManagerAdvanced(
 
         view?.text = "%.5f".format(latitude) + "/" + "%.5f".format(longitude) + "/" + "%.5f".format(altitude)
         changeMap(latitude, longitude)
-
     }
 
     override fun onProviderEnabled(provider: String) {
@@ -37,5 +36,9 @@ class LocationManagerAdvanced(
         super.onProviderDisabled(provider)
 
         Toast.makeText(view?.context, "Provider Disabled", Toast.LENGTH_SHORT).show()
+    }
+
+    fun getLocation(): List<Double>{
+        return listOf(latitude,longitude,altitude)
     }
 }

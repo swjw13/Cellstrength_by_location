@@ -2,6 +2,8 @@ package com.example.getcellinfos.Pager.PagerMainActivity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.Toast
@@ -114,5 +116,19 @@ class PagerActivity : AppCompatActivity() {
         super.onStop()
         timer = null
         timerTask = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_fragment_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.clearInOutTable -> {
+                databaseManager.deleteAll()
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

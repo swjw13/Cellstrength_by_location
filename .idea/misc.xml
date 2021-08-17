@@ -26,6 +26,7 @@
         <entry key="app/src/main/res/layout/other_cell_recyclerview_item.xml" value="0.19166666666666668" />
         <entry key="app/src/main/res/layout/time_dialog.xml" value="0.3020833333333333" />
         <entry key="app/src/main/res/layout/wifi_list_recyclerview_item.xml" value="0.19895833333333332" />
+        <entry key="app/src/main/res/menu/activity_fragment_menu.xml" value="0.16666666666666666" />
         <entry key="app/src/main/res/menu/activity_main_menu.xml" value="0.3676923076923077" />
       </map>
     </option>
