@@ -10,39 +10,35 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.telephony.*
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.room.Room
-import com.ajts.androidmads.library.SQLiteToExcel
-import com.example.getcellinfos.Pager.PagerActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.getcellinfos.Pager.PagerMainActivity.PagerActivity
 import com.example.getcellinfos.activities.SettingActivity
-import com.example.getcellinfos.appDatabase.AppDatabase
-import com.example.getcellinfos.appDatabase.CSVExportListener
-import com.example.getcellinfos.appDatabase.DatabaseBuilder
-import com.example.getcellinfos.appDatabase.DatabaseManager
+import com.example.getcellinfos.appDatabase.Instance.DatabaseBuilder
+import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import com.example.getcellinfos.appDatabase.logs.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
-import com.example.getcellinfos.listener.phoneStateListener
-import com.example.getcellinfos.retrofit.RetrofitClass
-import com.example.getcellinfos.retrofit.RetrofitDto
+import com.example.getcellinfos.otherCellList.OtherCellListViewAdapter
+import com.example.getcellinfos.overallService.CellInfoListener
+import com.example.getcellinfos.overallService.OverAllClass
+import com.example.getcellinfos.overallService.StrengthListener
 import com.example.getcellinfos.threadActivity.timerTask
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-
+@RequiresApi(Build.VERSION_CODES.Q)
 class MainActivity : AppCompatActivity() {
 
     private val updateDBButton: FloatingActionButton by lazy {
@@ -57,27 +53,27 @@ class MainActivity : AppCompatActivity() {
     private val locationTextView: TextView by lazy {
         findViewById(R.id.cellLocationTextView)
     }
-    private val mainScrollView: ScrollView by lazy {
-        findViewById(R.id.scrollMain)
+    private val otherCellsRecyclerView: RecyclerView by lazy {
+        findViewById(R.id.otherCellsRecyclerView)
     }
 
     private lateinit var mapFragment: MapFragment
-    private lateinit var database: AppDatabase
     private lateinit var naverMap: NaverMap
     private lateinit var mLocationSource: FusedLocationSource
+    private var marker: Marker? = null
 
     private var locationManager: LocationManager? = null
-    private var subscriptionManager: SubscriptionManager? = null
+//    private var subscriptionManager: SubscriptionManager? = null
     private var telephonyManager: TelephonyManager? = null
-    private var telephonyManagerWithSubscriptionId: TelephonyManager? = null
+//    private var telephonyManagerWithSubscriptionId: TelephonyManager? = null
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
 
-    private lateinit var listenerForSignalStrength: phoneStateListener
+//    private lateinit var listenerForSignalStrength: phoneStateListener
     private lateinit var listenerForLatitude: LocationManagerAdvanced
-    private lateinit var listenerForCellInfos: phoneStateListener
-
-    private lateinit var retrofitClass: RetrofitClass
+//    private lateinit var listenerForCellInfos: phoneStateListener
+    private lateinit var listenerForSignalStrength: StrengthListener
+    private lateinit var listenerForCellInfos: CellInfoListener
 
     private var isPermissionGranted = false
     private var settingNumber = 1
@@ -85,23 +81,38 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var databaseManager: DatabaseManager
 
+    private lateinit var adapter: OtherCellListViewAdapter
+
+    private lateinit var overallClass: OverAllClass
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         initForActivity()
+        overallClass = OverAllClass(this)
     }
 
     private fun initForActivity() {
-        initDatabase()
-        initMap()
-        initButtonListener()
-        initManager()
-        initRetrofitService()
+        initForView()
+        initForService()
     }
 
-    private fun initRetrofitService() {
-        retrofitClass = RetrofitClass()
+    private fun initForView() {
+        initMap()
+        initButtonListener()
+        initRecyclerView()
+    }
+
+    private fun initForService() {
+        initDatabase()
+        initManager()
+    }
+
+    private fun initRecyclerView() {
+        adapter = OtherCellListViewAdapter()
+        otherCellsRecyclerView.layoutManager = LinearLayoutManager(this)
+        otherCellsRecyclerView.adapter = adapter
     }
 
     private fun initDatabase() {
@@ -150,18 +161,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun exportCSV() {
-        val dir =
-            Environment.getExternalStorageDirectory().toString() + File.separator + "CellInfo/CSV/"
-        if (!File(dir).exists()) {
-            File(dir).mkdirs()
-        }
-
-        val time = System.currentTimeMillis()
-
-        val sqlToExcel = SQLiteToExcel(this, "CellInfo", dir)
-        sqlToExcel.exportAllTables("$time.csv", CSVExportListener { text ->
-            Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-        })
+        databaseManager.exportCSV(this)
     }
 
     private fun initManager() {
@@ -169,18 +169,54 @@ class MainActivity : AppCompatActivity() {
         initLocationManager()
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "NotifyDataSetChanged")
     private fun initTelephoneManager() {
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
-        subscriptionManager =
-            getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-        listenerForSignalStrength = phoneStateListener(mainScrollView)
-        listenerForCellInfos = phoneStateListener(mainScrollView)
+//        subscriptionManager =
+//            getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+//        listenerForSignalStrength = phoneStateListener(this, updateAdapter = { list ->
+//            adapter.list = list
+//            adapter.notifyDataSetChanged()
+//        }, updateMap = { lat, lng ->
+//            updateMap(lat, lng)
+//        })
+//        listenerForCellInfos = phoneStateListener(this, updateAdapter = { list ->
+//            adapter.list = list
+//            adapter.notifyDataSetChanged()
+//        }, updateMap = { lat, lng ->
+//            updateMap(lat, lng)
+//        })
+        listenerForSignalStrength = StrengthListener(this)
+        listenerForCellInfos = CellInfoListener(this, updateAdapter = { list ->
+            adapter.list = list
+            adapter.notifyDataSetChanged()
+        }, updateMap = { lat, lng ->
+            updateMap(lat, lng)
+        })
 
-        subscriptionManager?.getActiveSubscriptionInfoForSimSlotIndex(0)
-        telephonyManagerWithSubscriptionId = telephonyManager?.createForSubscriptionId(
-            subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
-        )
+
+//        try {
+//            telephonyManagerWithSubscriptionId = telephonyManager?.createForSubscriptionId(
+//                subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
+//            )
+//        } catch (e: Exception) {
+//            Log.d("jae", e.message.toString())
+//        }
+    }
+
+    private fun updateMap(lat: Float, lon: Float) {
+        if (marker != null) {
+            marker!!.map = null
+            marker!!.position = LatLng(lat.toDouble(), lon.toDouble())
+        } else {
+            marker = Marker()
+            marker!!.position = LatLng(lat.toDouble(), lon.toDouble())
+        }
+        marker!!.map = naverMap
+        marker?.setOnClickListener {
+            Toast.makeText(this, marker?.position.toString(), Toast.LENGTH_SHORT).show()
+            false
+        }
     }
 
     private fun initLocationManager() {
@@ -206,13 +242,16 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+
         selfPermissionCheck(
             arrayOf(
                 android.Manifest.permission.READ_PHONE_STATE,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.BLUETOOTH,
+                android.Manifest.permission.BLUETOOTH_ADMIN
             ), 101
         )
     }
@@ -302,8 +341,6 @@ class MainActivity : AppCompatActivity() {
     private fun startGettingInfo() {
         settingNumber = acquireSettings()
 
-        // TODO: 기지국 정보를 받아와서 저장하기 (이후 맵에 추가)
-
         if (isPermissionGranted) {
 
             when (settingNumber) {
@@ -327,40 +364,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun moveMap(latitude: Double, longitude: Double) {
-        naverMap.cameraPosition = CameraPosition(LatLng(latitude, longitude), 17.0)
+        naverMap.cameraPosition = CameraPosition(LatLng(latitude, longitude), 14.0)
     }
 
     private fun startGettingInformation() {
         requestMyLocation()
         startListeningWithSid()
-//        startCheckingWifi()
     }
 
     @SuppressLint("MissingPermission")
     private fun requestMyLocation() {
-        locationManager?.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
-            0,
-            0.0F,
-            listenerForLatitude
-        )
-        locationManager?.requestLocationUpdates(
-            LocationManager.NETWORK_PROVIDER,
-            0,
-            0.0F,
-            listenerForLatitude
-        )
+//        locationManager?.requestLocationUpdates(
+//            LocationManager.GPS_PROVIDER,
+//            0,
+//            0.0F,
+//            listenerForLatitude
+//        )
+//        locationManager?.requestLocationUpdates(
+//            LocationManager.NETWORK_PROVIDER,
+//            0,
+//            0.0F,
+//            listenerForLatitude
+//        )
+        overallClass.locationService()
+            .listenForLocationUpdate(LocationManager.NETWORK_PROVIDER, listenerForLatitude)
     }
 
     private fun startListeningWithSid() {
-        telephonyManagerWithSubscriptionId?.listen(
+//        telephonyManagerWithSubscriptionId?.listen(
+//            listenerForSignalStrength,
+//            PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
+//        )
+//        telephonyManagerWithSubscriptionId?.listen(
+//            listenerForCellInfos,
+//            PhoneStateListener.LISTEN_CELL_INFO
+//        )
+        overallClass.cellService().listenForCellUpdate(
             listenerForSignalStrength,
             PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
         )
-        telephonyManagerWithSubscriptionId?.listen(
-            listenerForCellInfos,
-            PhoneStateListener.LISTEN_CELL_INFO
-        )
+        overallClass.cellService()
+            .listenForCellUpdate(listenerForCellInfos, PhoneStateListener.LISTEN_CELL_INFO)
     }
 
     override fun onPause() {
@@ -375,21 +419,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopPhoneStateListener() {
-        telephonyManagerWithSubscriptionId?.listen(
-            listenerForSignalStrength,
-            PhoneStateListener.LISTEN_NONE
-        )
-        telephonyManagerWithSubscriptionId?.listen(
-            listenerForCellInfos,
-            PhoneStateListener.LISTEN_NONE
-        )
+        overallClass.cellService().stopListening()
+//        telephonyManagerWithSubscriptionId?.listen(
+//            listenerForSignalStrength,
+//            PhoneStateListener.LISTEN_NONE
+//        )
+//        telephonyManagerWithSubscriptionId?.listen(
+//            listenerForCellInfos,
+//            PhoneStateListener.LISTEN_NONE
+//        )
         timer?.cancel()
         timer = null
         timerTask = null
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun stopLocationUpdate() {
-        locationManager?.removeUpdates(listenerForLatitude)
+//        locationManager?.removeUpdates(listenerForLatitude)
+        overallClass.locationService().stopLocationUpdate()
     }
 
     private fun buildDialog(text: String) {
@@ -404,50 +451,68 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addDataToDB() {
+        val others_rsrp = mutableListOf<Int>()
+        val others_rsrq = mutableListOf<Int>()
+        val others_rssi = mutableListOf<Int>()
+        val others_rssnr = mutableListOf<Int>()
+        val others_earfcn = mutableListOf<Int>()
+        val others_pci = mutableListOf<Int>()
+        for (i in listenerForCellInfos.otherCellList) {
+            others_rsrp.add(i.rsrp)
+            others_rsrq.add(i.rsrq)
+            others_rssi.add(i.rssi)
+            others_rssnr.add(i.rssnr)
+            others_earfcn.add(i.earfcn)
+            others_pci.add(i.pci)
+        }
         databaseManager.insert(
+//            CellInfo(
+//                uid = null,
+//                date = getCurrentTimeFromFormat("yyyy-MM-dd"),
+//                time = getCurrentTimeFromFormat("hh:mm:ss"),
+//                latitude = listenerForLatitude.latitude.toString(),
+//                longitude = listenerForLatitude.longitude.toString(),
+//                altitude = listenerForLatitude.altitude.toString(),
+//                rsrp = listenerForSignalStrength.list[0],
+//                rsrq = listenerForSignalStrength.list[1],
+//                rssi = listenerForSignalStrength.list[2],
+//                rssnr = listenerForSignalStrength.list[3],
+//                earfcn = listenerForCellInfos.list[4],
+//                pci = listenerForCellInfos.list[5],
+//                neighborCell = listenerForCellInfos.list[6],
+//                memo = Memos,
+//                other_cell_rsrp = others_rsrp.toString(),
+//                other_cell_rsrq = others_rsrq.toString(),
+//                other_cell_rssi = others_rssi.toString(),
+//                other_cell_rssnr = others_rssnr.toString(),
+//                other_cell_earfcn = others_earfcn.toString(),
+//                other_cell_Pci = others_pci.toString()
+//            )
             CellInfo(
                 uid = null,
                 date = getCurrentTimeFromFormat("yyyy-MM-dd"),
                 time = getCurrentTimeFromFormat("hh:mm:ss"),
-                latitude = listenerForLatitude.latitude.toString(),
-                longitude = listenerForLatitude.longitude.toString(),
-                altitude = listenerForLatitude.altitude.toString(),
-                rsrp = listenerForSignalStrength.list[0],
-                rsrq = listenerForSignalStrength.list[1],
-                rssi = listenerForSignalStrength.list[2],
-                rssnr = listenerForSignalStrength.list[3],
-                earfcn = listenerForCellInfos.list[4],
-                pci = listenerForCellInfos.list[5],
-                neighborCell = listenerForCellInfos.list[6],
-                memo = Memos
+                latitude = overallClass.locationService().getLocation()[0].toString(),
+                longitude = overallClass.locationService().getLocation()[1].toString(),
+                altitude = overallClass.locationService().getLocation()[2].toString(),
+                rsrp = overallClass.cellService().getCellList()[0],
+                rsrq = overallClass.cellService().getCellList()[1],
+                rssi = overallClass.cellService().getCellList()[2],
+                rssnr = overallClass.cellService().getCellList()[3],
+                earfcn = overallClass.cellService().getCellList()[4],
+                pci = overallClass.cellService().getCellList()[5],
+                neighborCell = overallClass.cellService().getCellList()[6],
+                memo = Memos,
+                other_cell_rsrp = others_rsrp.toString(),
+                other_cell_rsrq = others_rsrq.toString(),
+                other_cell_rssi = others_rssi.toString(),
+                other_cell_rssnr = others_rssnr.toString(),
+                other_cell_earfcn = others_earfcn.toString(),
+                other_cell_Pci = others_pci.toString()
             )
         )
         Memos = ""
         Toast.makeText(this, "로그 등록 완료", Toast.LENGTH_SHORT).show()
-//        Thread {
-//            database.cellInfoDto().insert(
-//                CellInfo(
-//                    uid = null,
-//                    date = getCurrentTimeFromFormat("yyyy-MM-dd"),
-//                    time = getCurrentTimeFromFormat("hh:mm:ss"),
-//                    latitude = listenerForLatitude.latitude.toString(),
-//                    longitude = listenerForLatitude.longitude.toString(),
-//                    altitude = listenerForLatitude.altitude.toString(),
-//                    rsrp = listenerForSignalStrength.list[0],
-//                    rsrq = listenerForSignalStrength.list[1],
-//                    rssi = listenerForSignalStrength.list[2],
-//                    rssnr = listenerForSignalStrength.list[3],
-//                    earfcn = listenerForCellInfos.list[4],
-//                    pci = listenerForCellInfos.list[5],
-//                    neighborCell = listenerForCellInfos.list[6],
-//                    memo = Memos
-//                )
-//            )
-//            Memos = ""
-//            runOnUiThread {
-//                Toast.makeText(this, "로그 등록 완료", Toast.LENGTH_SHORT).show()
-//            }
-//        }.start()
     }
 
     private fun addDatabaseTimerTask(autotime: Int) {
@@ -464,15 +529,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteDBTable() {
-
         databaseManager.deleteAll()
         Toast.makeText(this, "로그 삭제 완료", Toast.LENGTH_SHORT).show()
-//        Thread {
-//            database.cellInfoDto().clearTable()
-//            runOnUiThread {
-//                Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
-//            }
-//        }.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -492,36 +550,8 @@ class MainActivity : AppCompatActivity() {
             R.id.deleteDB -> {
                 deleteDBTable()
             }
-            R.id.retrofitStart -> {
-                getStationInfo()
-            }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun getStationInfo() {
-
-        Log.d("jae", listenerForCellInfos.list[7].toString() + " and " + listenerForCellInfos.list[8].toString())
-
-        retrofitClass.getInstance().getStationInfo(
-            enbId = listenerForCellInfos.list[7], cellNum = listenerForCellInfos.list[8]
-        ).enqueue(object : Callback<RetrofitDto> {
-            override fun onResponse(call: Call<RetrofitDto>, response: Response<RetrofitDto>) {
-                if (response.isSuccessful) {
-                    Log.d("jae", response.body().toString())
-                } else {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "기지국 정보 가져오기에 실패하였습니다. because " + response.message(),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            override fun onFailure(call: Call<RetrofitDto>, t: Throwable) {
-                Toast.makeText(this@MainActivity, t.localizedMessage, Toast.LENGTH_SHORT).show()
-            }
-        })
     }
 
     @SuppressLint("SimpleDateFormat")

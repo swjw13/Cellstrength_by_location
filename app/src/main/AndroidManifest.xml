@@ -15,6 +15,8 @@
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
     <application
         android:allowBackup="true"
@@ -28,12 +30,10 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:appComponentFactory">
         <activity
-            android:name=".Pager.PagerActivity"
-            android:exported="true" />
-<!--        <activity-->
-<!--            android:name=".WifiClass.WifiActivity"-->
-<!--            android:exported="true" />-->
-
+            android:name=".Pager.PagerMainActivity.PagerActivity"
+            android:exported="true" /> <!-- <activity -->
+        <!-- android:name=".WifiClass.WifiActivity" -->
+        <!-- android:exported="true" /> -->
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="@string/NAVER_MAP_API_KEY" />

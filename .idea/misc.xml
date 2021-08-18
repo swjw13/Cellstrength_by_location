@@ -5,18 +5,28 @@
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.39692307692307693" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.21822916666666667" />
+        <entry key="app/src/main/res/drawable/custom_wifi.xml" value="0.2375" />
         <entry key="app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/drawable/ic_baseline_library_books_24.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/drawable/ic_baseline_update_24.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.21822916666666667" />
+        <entry key="app/src/main/res/drawable/oval_shape.xml" value="0.2375" />
+        <entry key="app/src/main/res/drawable/oval_shape_orange.xml" value="0.2375" />
+        <entry key="app/src/main/res/drawable/oval_shape_red.xml" value="0.2375" />
+        <entry key="app/src/main/res/drawable/oval_shape_yellow.xml" value="0.2375" />
         <entry key="app/src/main/res/drawable/wifi_image.xml" value="0.21510416666666668" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.17844202898550723" />
+        <entry key="app/src/main/res/layout/activity_bluetooth.xml" value="0.1875" />
+        <entry key="app/src/main/res/layout/activity_five_gactivity.xml" value="0.22135416666666666" />
+        <entry key="app/src/main/res/layout/activity_gnss.xml" value="0.1887031408308004" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.10237117874497921" />
         <entry key="app/src/main/res/layout/activity_pager.xml" value="0.20625" />
         <entry key="app/src/main/res/layout/activity_setting.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/activity_wifi.xml" value="0.17184737446765044" />
+        <entry key="app/src/main/res/layout/activity_wifi.xml" value="0.19706070414842583" />
         <entry key="app/src/main/res/layout/memo_dialog.xml" value="0.18161094224924013" />
+        <entry key="app/src/main/res/layout/other_cell_recyclerview_item.xml" value="0.19166666666666668" />
         <entry key="app/src/main/res/layout/time_dialog.xml" value="0.3020833333333333" />
         <entry key="app/src/main/res/layout/wifi_list_recyclerview_item.xml" value="0.19895833333333332" />
+        <entry key="app/src/main/res/menu/activity_fragment_menu.xml" value="0.16666666666666666" />
         <entry key="app/src/main/res/menu/activity_main_menu.xml" value="0.3676923076923077" />
       </map>
     </option>

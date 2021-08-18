@@ -3,6 +3,7 @@ package com.example.getcellinfos.listener
 import android.annotation.SuppressLint
 import android.location.Location
 import android.location.LocationListener
+import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 
@@ -11,9 +12,9 @@ class LocationManagerAdvanced(
     private val changeMap: (Double, Double) -> Unit
 ) : LocationListener {
 
-    var latitude = 0.00
-    var longitude = 0.00
-    var altitude = 0.00
+    private var latitude = 0.00
+    private var longitude = 0.00
+    private var altitude = 0.00
 
     @SuppressLint("SetTextI18n")
     override fun onLocationChanged(location: Location) {
@@ -35,5 +36,9 @@ class LocationManagerAdvanced(
         super.onProviderDisabled(provider)
 
         Toast.makeText(view?.context, "Provider Disabled", Toast.LENGTH_SHORT).show()
+    }
+
+    fun getLocation(): List<Double>{
+        return listOf(latitude,longitude,altitude)
     }
 }
