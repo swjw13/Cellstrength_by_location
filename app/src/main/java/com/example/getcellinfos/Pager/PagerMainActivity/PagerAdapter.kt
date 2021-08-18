@@ -8,7 +8,7 @@ import com.example.getcellinfos.Pager.fragments.FiveG.FiveGFragment
 import com.example.getcellinfos.Pager.fragments.WifiClass.WifiFragment
 import com.example.getcellinfos.Pager.Fragments.gnssActivity.GnssActivity
 
-class PagerAdapter(private val fragmentActivity: FragmentActivity) :
+class PagerAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {
 
     private val wifiFragment = WifiFragment(fragmentActivity)

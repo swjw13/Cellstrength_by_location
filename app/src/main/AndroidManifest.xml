@@ -31,9 +31,7 @@
         tools:replace="android:appComponentFactory">
         <activity
             android:name=".Pager.PagerMainActivity.PagerActivity"
-            android:exported="true" /> <!-- <activity -->
-        <!-- android:name=".WifiClass.WifiActivity" -->
-        <!-- android:exported="true" /> -->
+            android:exported="true" />
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="@string/NAVER_MAP_API_KEY" />

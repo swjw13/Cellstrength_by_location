@@ -26,6 +26,7 @@ import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import com.example.getcellinfos.appDatabase.logs.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.otherCellList.OtherCellListViewAdapter
+import com.example.getcellinfos.otherCellList.OtherCells
 import com.example.getcellinfos.overallService.CellInfoListener
 import com.example.getcellinfos.overallService.OverAllClass
 import com.example.getcellinfos.overallService.StrengthListener
@@ -35,10 +36,11 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.Q)
+@SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
 
     private val updateDBButton: FloatingActionButton by lazy {
@@ -63,15 +65,18 @@ class MainActivity : AppCompatActivity() {
     private var marker: Marker? = null
 
     private var locationManager: LocationManager? = null
-//    private var subscriptionManager: SubscriptionManager? = null
+
+    //    private var subscriptionManager: SubscriptionManager? = null
     private var telephonyManager: TelephonyManager? = null
-//    private var telephonyManagerWithSubscriptionId: TelephonyManager? = null
+
+    //    private var telephonyManagerWithSubscriptionId: TelephonyManager? = null
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
 
-//    private lateinit var listenerForSignalStrength: phoneStateListener
+    //    private lateinit var listenerForSignalStrength: phoneStateListener
     private lateinit var listenerForLatitude: LocationManagerAdvanced
-//    private lateinit var listenerForCellInfos: phoneStateListener
+
+    //    private lateinit var listenerForCellInfos: phoneStateListener
     private lateinit var listenerForSignalStrength: StrengthListener
     private lateinit var listenerForCellInfos: CellInfoListener
 
@@ -143,7 +148,8 @@ class MainActivity : AppCompatActivity() {
             addDataToDB()
         }
         wifiInfoButton.setOnClickListener {
-            startActivity(Intent(this, PagerActivity::class.java))
+            val intent = Intent(this, PagerActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -186,8 +192,10 @@ class MainActivity : AppCompatActivity() {
 //        }, updateMap = { lat, lng ->
 //            updateMap(lat, lng)
 //        })
-        listenerForSignalStrength = StrengthListener(this)
-        listenerForCellInfos = CellInfoListener(this, updateAdapter = { list ->
+        listenerForSignalStrength = StrengthListener(update = { list ->
+            updateStrengthView(list)
+        })
+        listenerForCellInfos = CellInfoListener(update = {list -> updateCellInfo(list)}, updateAdapter = { list ->
             adapter.list = list
             adapter.notifyDataSetChanged()
         }, updateMap = { lat, lng ->
@@ -202,6 +210,19 @@ class MainActivity : AppCompatActivity() {
 //        } catch (e: Exception) {
 //            Log.d("jae", e.message.toString())
 //        }
+    }
+
+    private fun updateCellInfo(cellInfoList: MutableList<Int>){
+            findViewById<TextView>(R.id.neighborcellTextView).text = cellInfoList[2].toString()
+            findViewById<TextView>(R.id.earfcnTextView).text = "earfcn: ${cellInfoList[0]}"
+            findViewById<TextView>(R.id.pciTextView).text = "pci: ${cellInfoList[1]}"
+    }
+
+    private fun updateStrengthView(strengthList: List<Int>) {
+        findViewById<TextView>(R.id.rsrpTextView).text = "rsrp: ${strengthList[0]}"
+        findViewById<TextView>(R.id.rsrqTextView).text = "rsrq: ${strengthList[1]}"
+        findViewById<TextView>(R.id.rssiTextView).text = "rssi: ${strengthList[2]}"
+        findViewById<TextView>(R.id.rssnrTextView).text = "rssnr: ${strengthList[3]}"
     }
 
     private fun updateMap(lat: Float, lon: Float) {
@@ -221,11 +242,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun initLocationManager() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        listenerForLatitude = LocationManagerAdvanced(locationTextView) { latitude, longitude ->
+        listenerForLatitude = LocationManagerAdvanced(update = { lat, lon, alt ->
+            findViewById<TextView>(R.id.cellLocationTextView).text =
+                "%.5f".format(lat) + "/" + "%.5f".format(lon) + "/" + "%.5f".format(alt)
+        }, changeMap = { latitude, longitude ->
             moveMap(latitude, longitude)
-        }
+        })
     }
-
 
     override fun onStart() {
         super.onStart()
@@ -342,13 +365,15 @@ class MainActivity : AppCompatActivity() {
         settingNumber = acquireSettings()
 
         if (isPermissionGranted) {
-
             when (settingNumber) {
                 1 -> {
                     startGettingInformation()
                 }
                 2 -> {
                     startGettingInformationWithTimertask()
+                }
+                else -> {
+                    startGettingInformation()
                 }
             }
         }
@@ -364,7 +389,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun moveMap(latitude: Double, longitude: Double) {
-        naverMap.cameraPosition = CameraPosition(LatLng(latitude, longitude), 14.0)
+        naverMap.cameraPosition = CameraPosition(LatLng(latitude, longitude), 16.0)
     }
 
     private fun startGettingInformation() {
@@ -433,7 +458,6 @@ class MainActivity : AppCompatActivity() {
         timerTask = null
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun stopLocationUpdate() {
 //        locationManager?.removeUpdates(listenerForLatitude)
         overallClass.locationService().stopLocationUpdate()
@@ -466,32 +490,10 @@ class MainActivity : AppCompatActivity() {
             others_pci.add(i.pci)
         }
         databaseManager.insert(
-//            CellInfo(
-//                uid = null,
-//                date = getCurrentTimeFromFormat("yyyy-MM-dd"),
-//                time = getCurrentTimeFromFormat("hh:mm:ss"),
-//                latitude = listenerForLatitude.latitude.toString(),
-//                longitude = listenerForLatitude.longitude.toString(),
-//                altitude = listenerForLatitude.altitude.toString(),
-//                rsrp = listenerForSignalStrength.list[0],
-//                rsrq = listenerForSignalStrength.list[1],
-//                rssi = listenerForSignalStrength.list[2],
-//                rssnr = listenerForSignalStrength.list[3],
-//                earfcn = listenerForCellInfos.list[4],
-//                pci = listenerForCellInfos.list[5],
-//                neighborCell = listenerForCellInfos.list[6],
-//                memo = Memos,
-//                other_cell_rsrp = others_rsrp.toString(),
-//                other_cell_rsrq = others_rsrq.toString(),
-//                other_cell_rssi = others_rssi.toString(),
-//                other_cell_rssnr = others_rssnr.toString(),
-//                other_cell_earfcn = others_earfcn.toString(),
-//                other_cell_Pci = others_pci.toString()
-//            )
             CellInfo(
                 uid = null,
-                date = getCurrentTimeFromFormat("yyyy-MM-dd"),
-                time = getCurrentTimeFromFormat("hh:mm:ss"),
+                date = overallClass.getCurrentTimeFromFormat("yyyy-MM-dd"),
+                time = overallClass.getCurrentTimeFromFormat("hh:mm:ss"),
                 latitude = overallClass.locationService().getLocation()[0].toString(),
                 longitude = overallClass.locationService().getLocation()[1].toString(),
                 altitude = overallClass.locationService().getLocation()[2].toString(),
@@ -512,7 +514,9 @@ class MainActivity : AppCompatActivity() {
             )
         )
         Memos = ""
-        Toast.makeText(this, "로그 등록 완료", Toast.LENGTH_SHORT).show()
+        runOnUiThread {
+            Toast.makeText(this, "로그 등록 완료", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun addDatabaseTimerTask(autotime: Int) {
@@ -552,12 +556,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    private fun getCurrentTimeFromFormat(pattern: String): String {
-        val date = Date(System.currentTimeMillis())
-        val dateFormat = SimpleDateFormat(pattern)
-        return dateFormat.format(date)
     }
 }

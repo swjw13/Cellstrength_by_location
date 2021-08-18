@@ -1,5 +1,6 @@
 package com.example.getcellinfos.Pager.fragments.FiveG
 
+import android.annotation.SuppressLint
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +22,7 @@ class FiveGFragment(val context: FragmentActivity) : Fragment() {
 
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var telephonyManager: TelephonyManager
+    private lateinit var phoneStateListener: PhoneStateListener
     var ssRsrp = 0
     var ssRsrq = 0
     var ssSinr = 0
@@ -33,15 +35,8 @@ class FiveGFragment(val context: FragmentActivity) : Fragment() {
         connectivityManager = context.getSystemService(AppCompatActivity.CONNECTIVITY_SERVICE) as ConnectivityManager
         telephonyManager = context.getSystemService(AppCompatActivity.TELEPHONY_SERVICE) as TelephonyManager
 
-        return inflater.inflate(R.layout.activity_five_gactivity, container, false)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        Log.d("jae","network id: ${connectivityManager.activeNetwork}")
-
-        telephonyManager.listen(object: PhoneStateListener(){
+        phoneStateListener = object: PhoneStateListener(){
+            @SuppressLint("SetTextI18n")
             override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
                 super.onSignalStrengthsChanged(signalStrength)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
@@ -57,7 +52,21 @@ class FiveGFragment(val context: FragmentActivity) : Fragment() {
                     }
                 }
             }
-        }, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
+        }
 
+        return inflater.inflate(R.layout.activity_five_gactivity, container, false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Log.d("jae","network id: ${connectivityManager.activeNetwork}")
+
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
     }
 }

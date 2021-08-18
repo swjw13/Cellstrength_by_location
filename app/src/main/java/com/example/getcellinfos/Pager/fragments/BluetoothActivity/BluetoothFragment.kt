@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentActivity
 import com.example.getcellinfos.R
 import java.lang.Exception
 
+@SuppressLint("SetTextI18n")
 class BluetoothFragment(val context: FragmentActivity) : Fragment() {
 
     private lateinit var bluetoothManager: BluetoothManager
@@ -32,25 +33,20 @@ class BluetoothFragment(val context: FragmentActivity) : Fragment() {
         bluetoothManager = context.getSystemService(AppCompatActivity.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
         scanCallback = object : ScanCallback() {
-            @SuppressLint("SetTextI18n")
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 super.onScanResult(callbackType, result)
-                Log.d("jae", "onScanResult: $result, callback type: $callbackType")
                 view?.findViewById<TextView>(R.id.bluetooth_first)?.text = result.toString()
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
                 super.onBatchScanResults(results)
-                if(results != null){
-                    Log.d("jae", "onBatchScanResults: $results")
-                }
             }
 
             override fun onScanFailed(errorCode: Int) {
                 super.onScanFailed(errorCode)
-                Log.d("jae", "onScanFailed: $errorCode")
             }
         }
+
         return inflater.inflate(R.layout.activity_bluetooth, container, false)
     }
 
@@ -60,13 +56,12 @@ class BluetoothFragment(val context: FragmentActivity) : Fragment() {
         try {
             bluetoothAdapter.bluetoothLeScanner.startScan(scanCallback)
         } catch (e: Exception){
-            Log.d("jae", e.message.toString())
             Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
     }
 }

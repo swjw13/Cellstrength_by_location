@@ -1,10 +1,12 @@
 package com.example.getcellinfos.otherCellList
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.getcellinfos.databinding.OtherCellRecyclerviewItemBinding
 
+@SuppressLint("SetTextI18n")
 class OtherCellListViewAdapter: RecyclerView.Adapter<OtherCellListViewAdapter.ViewHolder>() {
 
     var list = mutableListOf<OtherCells>()

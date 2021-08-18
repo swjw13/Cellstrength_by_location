@@ -40,7 +40,7 @@ class WifiRecyclerViewAdapter: RecyclerView.Adapter<WifiRecyclerViewAdapter.View
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        var view = LayoutInflater.from(parent.context).inflate(R.layout.wifi_list_recyclerview_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.wifi_list_recyclerview_item, parent, false)
         return ViewHolder(view)
     }
 

@@ -3,20 +3,15 @@ package com.example.getcellinfos.overallService
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.location.LocationListener
-import android.os.Build
 import android.telephony.PhoneStateListener
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
-import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import java.lang.Exception
 
 @SuppressLint("MissingPermission")
-@RequiresApi(Build.VERSION_CODES.Q)
-class CellAll(val context: Context) {
+class CellAll(val context: Context){
     private val telephonyManager =
         context.getSystemService(Activity.TELEPHONY_SERVICE) as TelephonyManager
     private val subscriptionManager =
@@ -28,7 +23,7 @@ class CellAll(val context: Context) {
                 telephonyManager.createForSubscriptionId(it)
             }
         } else {
-            null
+            telephonyManager
         }
 
     private var mStrengthListener: StrengthListener? = null
@@ -36,19 +31,19 @@ class CellAll(val context: Context) {
 
     fun listenForCellUpdate(listener: PhoneStateListener, listeningType: Int) {
         try {
-            when(listeningType){
+            when (listeningType) {
                 PhoneStateListener.LISTEN_SIGNAL_STRENGTHS -> {
-                    if(mStrengthListener == null){
+                    if (mStrengthListener == null) {
                         mStrengthListener = listener as StrengthListener
                     }
                 }
                 PhoneStateListener.LISTEN_CELL_INFO -> {
-                    if(mCellularListener == null){
+                    if (mCellularListener == null) {
                         mCellularListener = listener as CellInfoListener
                     }
                 }
             }
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
         }
 
@@ -59,16 +54,22 @@ class CellAll(val context: Context) {
         }
     }
 
-    fun stopListening(){
-        telephonyManagerWithSubscriptionId?.listen(mStrengthListener, PhoneStateListener.LISTEN_NONE)
-        telephonyManagerWithSubscriptionId?.listen(mCellularListener, PhoneStateListener.LISTEN_NONE)
+    fun stopListening() {
+        telephonyManagerWithSubscriptionId?.listen(
+            mStrengthListener,
+            PhoneStateListener.LISTEN_NONE
+        )
+        telephonyManagerWithSubscriptionId?.listen(
+            mCellularListener,
+            PhoneStateListener.LISTEN_NONE
+        )
     }
-    
-    fun getCellList(): List<Int>{
-        return if((mStrengthListener != null) && (mCellularListener != null)){
+
+    fun getCellList(): List<Int> {
+        return if ((mStrengthListener != null) && (mCellularListener != null)) {
             mStrengthListener!!.getStrengthList() + mCellularListener!!.getCellList()
-        } else{
-            listOf(0,0,0,0,0,0,0,0,0)
+        } else {
+            listOf(0, 0, 0, 0, 0, 0, 0, 0, 0)
         }
     }
 }
