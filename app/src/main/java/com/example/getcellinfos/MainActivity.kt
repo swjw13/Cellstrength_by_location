@@ -13,7 +13,6 @@ import android.telephony.*
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -26,7 +25,6 @@ import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import com.example.getcellinfos.appDatabase.logs.CellInfo
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 import com.example.getcellinfos.otherCellList.OtherCellListViewAdapter
-import com.example.getcellinfos.otherCellList.OtherCells
 import com.example.getcellinfos.overallService.CellInfoListener
 import com.example.getcellinfos.overallService.OverAllClass
 import com.example.getcellinfos.overallService.StrengthListener
@@ -36,8 +34,6 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
-import java.io.Serializable
-import java.text.SimpleDateFormat
 import java.util.*
 
 @SuppressLint("SetTextI18n")
@@ -52,9 +48,6 @@ class MainActivity : AppCompatActivity() {
     private val wifiInfoButton: FloatingActionButton by lazy {
         findViewById(R.id.wifiInfoButton)
     }
-    private val locationTextView: TextView by lazy {
-        findViewById(R.id.cellLocationTextView)
-    }
     private val otherCellsRecyclerView: RecyclerView by lazy {
         findViewById(R.id.otherCellsRecyclerView)
     }
@@ -65,18 +58,12 @@ class MainActivity : AppCompatActivity() {
     private var marker: Marker? = null
 
     private var locationManager: LocationManager? = null
-
-    //    private var subscriptionManager: SubscriptionManager? = null
     private var telephonyManager: TelephonyManager? = null
 
-    //    private var telephonyManagerWithSubscriptionId: TelephonyManager? = null
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
 
-    //    private lateinit var listenerForSignalStrength: phoneStateListener
     private lateinit var listenerForLatitude: LocationManagerAdvanced
-
-    //    private lateinit var listenerForCellInfos: phoneStateListener
     private lateinit var listenerForSignalStrength: StrengthListener
     private lateinit var listenerForCellInfos: CellInfoListener
 
@@ -178,44 +165,24 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission", "NotifyDataSetChanged")
     private fun initTelephoneManager() {
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
-//        subscriptionManager =
-//            getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-//        listenerForSignalStrength = phoneStateListener(this, updateAdapter = { list ->
-//            adapter.list = list
-//            adapter.notifyDataSetChanged()
-//        }, updateMap = { lat, lng ->
-//            updateMap(lat, lng)
-//        })
-//        listenerForCellInfos = phoneStateListener(this, updateAdapter = { list ->
-//            adapter.list = list
-//            adapter.notifyDataSetChanged()
-//        }, updateMap = { lat, lng ->
-//            updateMap(lat, lng)
-//        })
+
         listenerForSignalStrength = StrengthListener(update = { list ->
             updateStrengthView(list)
         })
-        listenerForCellInfos = CellInfoListener(update = {list -> updateCellInfo(list)}, updateAdapter = { list ->
-            adapter.list = list
-            adapter.notifyDataSetChanged()
-        }, updateMap = { lat, lng ->
-            updateMap(lat, lng)
-        })
-
-
-//        try {
-//            telephonyManagerWithSubscriptionId = telephonyManager?.createForSubscriptionId(
-//                subscriptionManager?.activeSubscriptionInfoList?.get(0)?.subscriptionId ?: return
-//            )
-//        } catch (e: Exception) {
-//            Log.d("jae", e.message.toString())
-//        }
+        listenerForCellInfos = CellInfoListener(updateView = { list -> updateCellInfo(list) },
+            updateAdapter = { list ->
+                adapter.list = list
+                adapter.notifyDataSetChanged()
+            },
+            updateMap = { lat, lng ->
+                updateMap(lat, lng)
+            })
     }
 
-    private fun updateCellInfo(cellInfoList: MutableList<Int>){
-            findViewById<TextView>(R.id.neighborcellTextView).text = cellInfoList[2].toString()
-            findViewById<TextView>(R.id.earfcnTextView).text = "earfcn: ${cellInfoList[0]}"
-            findViewById<TextView>(R.id.pciTextView).text = "pci: ${cellInfoList[1]}"
+    private fun updateCellInfo(cellInfoList: MutableList<Int>) {
+        findViewById<TextView>(R.id.neighborcellTextView).text = cellInfoList[2].toString()
+        findViewById<TextView>(R.id.earfcnTextView).text = "earfcn: ${cellInfoList[0]}"
+        findViewById<TextView>(R.id.pciTextView).text = "pci: ${cellInfoList[1]}"
     }
 
     private fun updateStrengthView(strengthList: List<Int>) {
@@ -274,7 +241,8 @@ class MainActivity : AppCompatActivity() {
                 android.Manifest.permission.READ_EXTERNAL_STORAGE,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 android.Manifest.permission.BLUETOOTH,
-                android.Manifest.permission.BLUETOOTH_ADMIN
+                android.Manifest.permission.BLUETOOTH_ADMIN,
+                android.Manifest.permission.ACTIVITY_RECOGNITION
             ), 101
         )
     }
@@ -399,31 +367,11 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun requestMyLocation() {
-//        locationManager?.requestLocationUpdates(
-//            LocationManager.GPS_PROVIDER,
-//            0,
-//            0.0F,
-//            listenerForLatitude
-//        )
-//        locationManager?.requestLocationUpdates(
-//            LocationManager.NETWORK_PROVIDER,
-//            0,
-//            0.0F,
-//            listenerForLatitude
-//        )
         overallClass.locationService()
             .listenForLocationUpdate(LocationManager.NETWORK_PROVIDER, listenerForLatitude)
     }
 
     private fun startListeningWithSid() {
-//        telephonyManagerWithSubscriptionId?.listen(
-//            listenerForSignalStrength,
-//            PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
-//        )
-//        telephonyManagerWithSubscriptionId?.listen(
-//            listenerForCellInfos,
-//            PhoneStateListener.LISTEN_CELL_INFO
-//        )
         overallClass.cellService().listenForCellUpdate(
             listenerForSignalStrength,
             PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
@@ -445,21 +393,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun stopPhoneStateListener() {
         overallClass.cellService().stopListening()
-//        telephonyManagerWithSubscriptionId?.listen(
-//            listenerForSignalStrength,
-//            PhoneStateListener.LISTEN_NONE
-//        )
-//        telephonyManagerWithSubscriptionId?.listen(
-//            listenerForCellInfos,
-//            PhoneStateListener.LISTEN_NONE
-//        )
         timer?.cancel()
         timer = null
         timerTask = null
     }
 
     private fun stopLocationUpdate() {
-//        locationManager?.removeUpdates(listenerForLatitude)
         overallClass.locationService().stopLocationUpdate()
     }
 

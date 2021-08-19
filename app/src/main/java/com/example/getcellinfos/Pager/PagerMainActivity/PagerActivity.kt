@@ -1,18 +1,14 @@
 package com.example.getcellinfos.Pager.PagerMainActivity
 
-import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.telephony.PhoneStateListener
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.room.ColumnInfo
 import androidx.viewpager2.widget.ViewPager2
 import com.example.getcellinfos.R
 import com.example.getcellinfos.appDatabase.Instance.DatabaseBuilder
@@ -58,21 +54,22 @@ class PagerActivity : AppCompatActivity() {
         initForActivity()
     }
 
-    private fun initForActivity(){
+    private fun initForActivity() {
         initView()
         initBackground()
     }
 
-    private fun initBackground(){
+    private fun initBackground() {
         initDatabaseManager()
         initOverallClass()
     }
-    private fun initView(){
+
+    private fun initView() {
         initViewPager()
         initButton()
     }
 
-    private fun initOverallClass(){
+    private fun initOverallClass() {
         pagerOverallClass = OverAllClass(this)
     }
 
@@ -124,11 +121,18 @@ class PagerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        pagerOverallClass.locationService().listenForLocationUpdate(LocationManager.NETWORK_PROVIDER, LocationManagerAdvanced(
-            update = {_,_,_ -> } ,changeMap = { _, _ ->}
-        ))
-        pagerOverallClass.cellService().listenForCellUpdate(StrengthListener { _ -> }, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
-        pagerOverallClass.cellService().listenForCellUpdate(CellInfoListener(update = {_ ->}, updateAdapter = {_ -> }, updateMap = {_, _ ->}, callStation = false), PhoneStateListener.LISTEN_CELL_INFO)
+        pagerOverallClass.locationService()
+            .listenForLocationUpdate(LocationManager.NETWORK_PROVIDER, LocationManagerAdvanced(
+                update = { _, _, _ -> }, changeMap = { _, _ -> }
+            ))
+        pagerOverallClass.cellService()
+            .listenForCellUpdate(StrengthListener { }, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
+        pagerOverallClass.cellService().listenForCellUpdate(CellInfoListener(updateView = { },
+            updateAdapter = { },
+            updateMap = { _, _ -> },
+            callStation = false
+        ), PhoneStateListener.LISTEN_CELL_INFO
+        )
     }
 
     private fun updateDB() {
@@ -157,7 +161,8 @@ class PagerActivity : AppCompatActivity() {
                 satellite_strengths = adapter.getGpsSatelliteStrength().toString(),
                 ssrsrp = adapter.getNrStregnth()[0],
                 ssrsrq = adapter.getNrStregnth()[1],
-                sssinr = adapter.getNrStregnth()[2]
+                sssinr = adapter.getNrStregnth()[2],
+                light = adapter.getLightPower()
             )
         )
     }
@@ -176,7 +181,7 @@ class PagerActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.clearInOutTable -> {
                 databaseManager.deleteAll()
             }

@@ -1,6 +1,7 @@
 package com.example.getcellinfos.Pager.fragments.FiveG
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
@@ -14,10 +15,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.getcellinfos.R
 
+@SuppressLint("SetTextI18n")
 class FiveGFragment(val context: FragmentActivity) : Fragment() {
 
     private lateinit var connectivityManager: ConnectivityManager
@@ -36,19 +39,33 @@ class FiveGFragment(val context: FragmentActivity) : Fragment() {
         telephonyManager = context.getSystemService(AppCompatActivity.TELEPHONY_SERVICE) as TelephonyManager
 
         phoneStateListener = object: PhoneStateListener(){
-            @SuppressLint("SetTextI18n")
             override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
                 super.onSignalStrengthsChanged(signalStrength)
+
+                ssRsrp = 0
+                ssRsrq = 0
+                ssSinr = 0
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
                     signalStrength?.cellSignalStrengths?.forEach {
                         if(it is CellSignalStrengthNr){
                             ssRsrp = it.ssRsrp
                             ssRsrq = it.ssRsrq
                             ssSinr = it.ssSinr
+
                             view?.findViewById<TextView>(R.id.nrRsrpTextView)?.text = "ssRsrp: $ssRsrp"
                             view?.findViewById<TextView>(R.id.nrRsrqTextView)?.text = "ssRsrq: $ssRsrq"
                             view?.findViewById<TextView>(R.id.nrRssiTextView)?.text = "ssSinr: $ssSinr"
+
+                            view?.findViewById<CardView>(R.id.nrCardView)?.setCardBackgroundColor(Color.BLUE)
                         }
+                    }
+                    if(ssRsrp == 0){
+                        view?.findViewById<TextView>(R.id.nrRsrpTextView)?.text = "ssRsrp: -"
+                        view?.findViewById<TextView>(R.id.nrRsrqTextView)?.text = "ssRsrq: -"
+                        view?.findViewById<TextView>(R.id.nrRssiTextView)?.text = "ssSinr: -"
+
+                        view?.findViewById<CardView>(R.id.nrCardView)?.setCardBackgroundColor(Color.RED)
                     }
                 }
             }
@@ -59,8 +76,6 @@ class FiveGFragment(val context: FragmentActivity) : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-        Log.d("jae","network id: ${connectivityManager.activeNetwork}")
 
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
     }

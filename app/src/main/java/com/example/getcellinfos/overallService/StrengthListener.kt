@@ -1,12 +1,9 @@
 package com.example.getcellinfos.overallService
 
-import android.app.Activity
 import android.os.Build
 import android.telephony.CellSignalStrengthLte
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
-import android.widget.TextView
-import com.example.getcellinfos.R
 
 class StrengthListener(val update: (List<Int>) -> Unit): PhoneStateListener() {
 

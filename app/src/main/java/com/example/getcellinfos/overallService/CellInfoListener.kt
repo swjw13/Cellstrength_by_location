@@ -1,14 +1,10 @@
 package com.example.getcellinfos.overallService
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Build
 import android.telephony.CellInfo
 import android.telephony.CellInfoLte
 import android.telephony.PhoneStateListener
-import android.widget.TextView
-import android.widget.Toast
-import com.example.getcellinfos.R
 import com.example.getcellinfos.otherCellList.OtherCells
 import com.example.getcellinfos.retrofit.retrofitAnswer.RetrofitDto
 import com.example.getcellinfos.retrofit.retrofitInstance.RetrofitClass
@@ -17,7 +13,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class CellInfoListener(
-    val update: ((MutableList<Int>) -> Unit),
+    val updateView: ((MutableList<Int>) -> Unit),
     val updateAdapter: (MutableList<OtherCells>) -> Unit,
     val updateMap: (Float, Float) -> Unit,
     val callStation: Boolean = true
@@ -83,7 +79,7 @@ class CellInfoListener(
                 }
             }
             updateAdapter(otherCellList)
-            update(cellInfoList)
+            updateView(cellInfoList)
         }
     }
 

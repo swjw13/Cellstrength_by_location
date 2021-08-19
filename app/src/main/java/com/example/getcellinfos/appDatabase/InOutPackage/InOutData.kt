@@ -26,5 +26,6 @@ data class InOutData(
     @ColumnInfo(name = "nr_ssRsrp") var ssrsrp: Int? = 0,
     @ColumnInfo(name = "nr_ssRsrq") var ssrsrq: Int? = 0,
     @ColumnInfo(name = "nr_ssSinr") var sssinr: Int? = 0,
+    @ColumnInfo(name = "light") var light: Float? = 0F,
     @ColumnInfo(name = "In / Out") var inOut: String? = ""
     ): DatabaseDto
