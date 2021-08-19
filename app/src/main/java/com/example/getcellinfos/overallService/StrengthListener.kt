@@ -1,14 +1,11 @@
 package com.example.getcellinfos.overallService
 
-import android.app.Activity
 import android.os.Build
 import android.telephony.CellSignalStrengthLte
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
-import android.widget.TextView
-import com.example.getcellinfos.R
 
-class StrengthListener(val context: Activity): PhoneStateListener() {
+class StrengthListener(val update: (List<Int>) -> Unit): PhoneStateListener() {
 
     private var strengthList = mutableListOf(0,0,0,0)
 
@@ -22,10 +19,7 @@ class StrengthListener(val context: Activity): PhoneStateListener() {
                     strengthList[2] = it.rssi
                     strengthList[3] = it.rssnr
 
-                    context.findViewById<TextView>(R.id.rsrpTextView).text = "rsrp: ${strengthList[0]}"
-                    context.findViewById<TextView>(R.id.rsrqTextView).text = "rsrq: ${strengthList[1]}"
-                    context.findViewById<TextView>(R.id.rssiTextView).text = "rssi: ${strengthList[2]}"
-                    context.findViewById<TextView>(R.id.rssnrTextView).text = "rssnr: ${strengthList[3]}"
+                    update(strengthList)
                 }
             }
         }

@@ -7,58 +7,158 @@
     tools:context=".Pager.Fragments.gnssActivity.GnssActivity">
 
     <TextView
-        android:id="@+id/first"
+        android:id="@+id/satelliteTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@id/second"
+        android:layout_margin="10dp"
+        android:text="@string/satellite_string"
+        android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="hello" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/second"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/gpsLinearLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@id/third"
-        app:layout_constraintEnd_toEndOf="@id/first"
-        app:layout_constraintStart_toStartOf="@id/first"
-        app:layout_constraintTop_toBottomOf="@id/first"
-        tools:text="second" />
-
-    <TextView
-        android:id="@+id/third"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@id/fourth"
+        android:layout_margin="15dp"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/second"
-        tools:text="third" />
+        app:layout_constraintTop_toBottomOf="@id/satelliteTextView">
 
-    <TextView
-        android:id="@+id/fourth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@id/fifth"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/third"
-        tools:text="third" />
+        <TextView
+            android:id="@+id/gpsSatelliteCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="20sp"
+            tools:text="gps 위성 개수" />
 
-    <TextView
-        android:id="@+id/fifth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fourth"
-        tools:text="third" />
+        <TextView
+            android:id="@+id/gpsSatelliteSpecific"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="15sp"
+            tools:text="gps 위성 세기" />
+
+        <TextView
+            android:id="@+id/glonasSatelliteSpecific"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="15sp"
+            tools:text="gps 위성 세기" />
+
+        <TextView
+            android:id="@+id/beidouSatelliteSpecific"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="12sp"
+            tools:text="gps 위성 세기" />
+
+        <TextView
+            android:id="@+id/sbasSatelliteSpecific"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="12sp"
+            tools:text="gps 위성 세기" />
+
+        <TextView
+            android:id="@+id/gzssSatelliteSpecific"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="12sp"
+            tools:text="gps 위성 세기" />
+
+        <TextView
+            android:id="@+id/galileoSatelliteSpecific"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="12sp"
+            tools:text="gps 위성 세기" />
+
+        <TextView
+            android:id="@+id/irnssSatelliteSpecific"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="12sp"
+            tools:text="gps 위성 세기" />
+
+        <TextView
+            android:id="@+id/unknownSatelliteSpecific"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:textSize="12sp"
+            tools:text="gps 위성 세기" />
+
+
+        <LinearLayout
+            android:id="@+id/strengthTestResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="15dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/gpsSatelliteSpecific">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:text="세기 측정 결과"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/strength_answer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:textSize="15sp"
+                tools:text="Strength: " />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/locationResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="15dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/gpsSatelliteSpecific">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:text="위치 측정 결과"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/number_answer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:textSize="15sp"
+                tools:text="Location: " />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

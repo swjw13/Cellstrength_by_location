@@ -111,8 +111,8 @@ class WifiFragment(val fragmentActivity: FragmentActivity) : Fragment() {
         view?.findViewById<TextView>(R.id.red_textView)?.text = red.toString()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         context?.unregisterReceiver(wifiScanReceiver)
     }
 }

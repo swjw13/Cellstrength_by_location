@@ -2,10 +2,9 @@ package com.example.getcellinfos.overallService
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
+import java.text.SimpleDateFormat
+import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @SuppressLint("MissingPermission")
 class OverAllClass(val context: Context) {
     private var mLocationService: LocationAll? = null
@@ -23,5 +22,12 @@ class OverAllClass(val context: Context) {
             mCellService = CellAll(context)
         }
         return mCellService as CellAll
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun getCurrentTimeFromFormat(pattern: String): String {
+        val date = Date(System.currentTimeMillis())
+        val dateFormat = SimpleDateFormat(pattern)
+        return dateFormat.format(date)
     }
 }

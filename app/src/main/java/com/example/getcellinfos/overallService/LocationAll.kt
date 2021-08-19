@@ -8,7 +8,7 @@ import android.location.LocationManager
 import com.example.getcellinfos.listener.LocationManagerAdvanced
 
 @SuppressLint("MissingPermission")
-class LocationAll(context: Context) {
+class LocationAll(context: Context){
     private val locationManager =
         context.getSystemService(Activity.LOCATION_SERVICE) as LocationManager
     private var mListener: LocationListener? = null
@@ -33,4 +33,7 @@ class LocationAll(context: Context) {
         return (mListener as LocationManagerAdvanced).getLocation()
     }
 
+    fun isListenerAvailable(): Boolean{
+        return mListener != null
+    }
 }

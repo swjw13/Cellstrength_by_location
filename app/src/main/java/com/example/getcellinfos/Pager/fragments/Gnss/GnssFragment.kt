@@ -2,29 +2,24 @@ package com.example.getcellinfos.Pager.Fragments.gnssActivity
 
 import android.annotation.SuppressLint
 import android.location.*
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.example.getcellinfos.Pager.fragments.Gnss.GnssCallback
 import com.example.getcellinfos.R
+@SuppressLint("SetTextI18n")
 
 class GnssActivity(val context: FragmentActivity) : Fragment() {
 
     private lateinit var locationManager: LocationManager
-
-    var gpsSateliteList: MutableList<Float> = mutableListOf()
-    private var sbasSateliteList: MutableList<Float> = mutableListOf()
-    private var glonasSateliteList: MutableList<Float> = mutableListOf()
-    private var elseSateliteList: MutableList<Float> = mutableListOf()
-
-    private lateinit var gnssCallback: GnssStatus.Callback
+    private lateinit var gnssCallback: GnssCallback
+    private lateinit var locationListener: LocationListener
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,49 +28,58 @@ class GnssActivity(val context: FragmentActivity) : Fragment() {
     ): View? {
 
         locationManager = context.getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
-        gnssCallback = object: GnssStatus.Callback(){
-            @SuppressLint("SetTextI18n")
-            override fun onSatelliteStatusChanged(status: GnssStatus) {
-                gpsSateliteList = mutableListOf()
-                sbasSateliteList = mutableListOf()
-                glonasSateliteList = mutableListOf()
-                elseSateliteList = mutableListOf()
+        gnssCallback = GnssCallback{updateView()}
 
-                for (i in 0 until status.satelliteCount - 1) {
-                    when (status.getConstellationType(i)) {
-                        GnssStatus.CONSTELLATION_GPS -> gpsSateliteList!!.add(status.getCn0DbHz(i))
-                        GnssStatus.CONSTELLATION_SBAS -> sbasSateliteList.add(status.getCn0DbHz(i))
-                        GnssStatus.CONSTELLATION_GLONASS -> glonasSateliteList.add(status.getCn0DbHz(i))
-                        else -> elseSateliteList.add(status.getCn0DbHz(i))
-                    }
+        locationListener = object: LocationListener{
+
+            var timeStamp = 0F
+            var inOut = ""
+
+            override fun onLocationChanged(location: Location) {
+                inOut = if(location.elapsedRealtimeNanos - timeStamp > 2e9){
+                    "실내"
+                } else{
+                    "실외"
                 }
-
-                super.onSatelliteStatusChanged(status)
-                view?.findViewById<TextView>(R.id.first)?.text = "위성 갯수: ${status.satelliteCount}"
-                view?.findViewById<TextView>(R.id.second)?.text = "gps: $gpsSateliteList"
-                view?.findViewById<TextView>(R.id.third)?.text = "SBAS: $sbasSateliteList"
-                view?.findViewById<TextView>(R.id.fourth)?.text = "glonas: $glonasSateliteList"
-                view?.findViewById<TextView>(R.id.fifth)?.text = "else: $elseSateliteList"
+                view?.findViewById<TextView>(R.id.number_answer)?.text = "time: ${location.elapsedRealtimeNanos - timeStamp}, $inOut"
+                timeStamp = location.elapsedRealtimeNanos.toFloat()
             }
         }
+
         return inflater.inflate(R.layout.activity_gnss, container, false)
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
-
         locationManager.registerGnssStatusCallback(gnssCallback, Handler(context.mainLooper))
         locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
             0,
-            0.0F
-        ) { }
+            0.0F,
+            locationListener
+        )
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         locationManager.unregisterGnssStatusCallback(gnssCallback)
+    }
+
+    fun getCallback(): GnssCallback{
+        return gnssCallback
+    }
+
+    private fun updateView(){
+        view?.findViewById<TextView>(R.id.gpsSatelliteCount)?.text = "감지되는 위성 개수: ${gnssCallback.satCount}"
+        view?.findViewById<TextView>(R.id.gpsSatelliteSpecific)?.text = "gps: ${gnssCallback.gpsSateliteList}"
+        view?.findViewById<TextView>(R.id.glonasSatelliteSpecific)?.text = "glonas: ${gnssCallback.glonassSateliteList}"
+        view?.findViewById<TextView>(R.id.beidouSatelliteSpecific)?.text = "beidou: ${gnssCallback.beidouSateliteList}"
+        view?.findViewById<TextView>(R.id.galileoSatelliteSpecific)?.text = "galileo: ${gnssCallback.galileoSateliteList}"
+        view?.findViewById<TextView>(R.id.irnssSatelliteSpecific)?.text = "irnss: ${gnssCallback.irnssSateliteList}"
+        view?.findViewById<TextView>(R.id.sbasSatelliteSpecific)?.text = "sbas: ${gnssCallback.sbasSateliteList}"
+        view?.findViewById<TextView>(R.id.unknownSatelliteSpecific)?.text = "unknown: ${gnssCallback.unknownSateliteList}"
+        view?.findViewById<TextView>(R.id.gzssSatelliteSpecific)?.text = "gzss: ${gnssCallback.gzssSateliteList}"
+        view?.findViewById<TextView>(R.id.strength_answer)?.text = "strength: ${gnssCallback.strength_total / gnssCallback.size_total}, 결과: ${gnssCallback.inOut_strength}"
     }
 }

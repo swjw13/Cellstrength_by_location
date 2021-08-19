@@ -21,4 +21,7 @@
     <string name="wifi_list_string">wifi List</string>
     <string name="indoor_string_korean">실내</string>
     <string name="outdoor_string_korean">실외</string>
+    <string name="satellite_string">Satellite</string>
+    <string name="sensors_string">Sensors</string>
+    <string name="light_string">Light</string>
 </resources>
