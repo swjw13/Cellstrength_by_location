@@ -14,10 +14,10 @@ import com.example.getcellinfos.R
 import com.example.getcellinfos.appDatabase.Instance.DatabaseBuilder
 import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import com.example.getcellinfos.appDatabase.InOutPackage.InOutData
-import com.example.getcellinfos.listener.LocationManagerAdvanced
-import com.example.getcellinfos.overallService.CellInfoListener
+import com.example.getcellinfos.overallService.LocationService.LocationManagerAdvanced
+import com.example.getcellinfos.overallService.CellinfoService.CellInfoListener
 import com.example.getcellinfos.overallService.OverAllClass
-import com.example.getcellinfos.overallService.StrengthListener
+import com.example.getcellinfos.overallService.CellinfoService.StrengthListener
 import com.example.getcellinfos.threadActivity.timerTask
 import java.lang.Exception
 import java.util.*
@@ -127,11 +127,13 @@ class PagerActivity : AppCompatActivity() {
             ))
         pagerOverallClass.cellService()
             .listenForCellUpdate(StrengthListener { }, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
-        pagerOverallClass.cellService().listenForCellUpdate(CellInfoListener(updateView = { },
-            updateAdapter = { },
-            updateMap = { _, _ -> },
-            callStation = false
-        ), PhoneStateListener.LISTEN_CELL_INFO
+        pagerOverallClass.cellService().listenForCellUpdate(
+            CellInfoListener(
+                updateView = { },
+                updateAdapter = { },
+                updateMap = { _, _ -> },
+                callStation = false
+            ), PhoneStateListener.LISTEN_CELL_INFO
         )
     }
 

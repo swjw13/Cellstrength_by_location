@@ -1,4 +1,4 @@
-package com.example.getcellinfos.overallService
+package com.example.getcellinfos.overallService.CellinfoService
 
 import android.os.Build
 import android.telephony.CellSignalStrengthLte

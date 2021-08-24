@@ -1,4 +1,4 @@
-package com.example.getcellinfos.listener
+package com.example.getcellinfos.listener_deprecated
 
 import android.annotation.SuppressLint
 import android.app.Activity

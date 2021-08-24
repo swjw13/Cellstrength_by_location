@@ -1,4 +1,4 @@
-package com.example.getcellinfos.overallService
+package com.example.getcellinfos.overallService.CellinfoService
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -93,7 +93,6 @@ class CellInfoListener(
                         cell_lat = response.body()?.result?.eqp_lat ?: 0F
                         cell_lon = response.body()?.result?.eqp_lon ?: 0F
                         updateMap(cell_lat, cell_lon)
-                    } else {
                     }
                 }
 

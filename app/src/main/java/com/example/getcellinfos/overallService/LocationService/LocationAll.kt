@@ -1,11 +1,10 @@
-package com.example.getcellinfos.overallService
+package com.example.getcellinfos.overallService.LocationService
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.location.LocationListener
 import android.location.LocationManager
-import com.example.getcellinfos.listener.LocationManagerAdvanced
 
 @SuppressLint("MissingPermission")
 class LocationAll(context: Context){

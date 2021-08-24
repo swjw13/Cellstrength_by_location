@@ -1,12 +1,8 @@
-package com.example.getcellinfos.listener
+package com.example.getcellinfos.overallService.LocationService
 
 import android.annotation.SuppressLint
 import android.location.Location
 import android.location.LocationListener
-import android.os.Bundle
-import android.widget.TextView
-import android.widget.Toast
-import java.io.Serializable
 
 class LocationManagerAdvanced(
     private val update: (Double, Double, Double) -> Unit,

@@ -1,4 +1,4 @@
-package com.example.getcellinfos.overallService
+package com.example.getcellinfos.overallService.CellinfoService
 
 import android.annotation.SuppressLint
 import android.app.Activity

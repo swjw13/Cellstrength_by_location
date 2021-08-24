@@ -2,6 +2,8 @@ package com.example.getcellinfos.overallService
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.example.getcellinfos.overallService.CellinfoService.CellAll
+import com.example.getcellinfos.overallService.LocationService.LocationAll
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,7 +19,7 @@ class OverAllClass(val context: Context) {
         return mLocationService as LocationAll
     }
 
-    fun cellService(): CellAll{
+    fun cellService(): CellAll {
         if(mCellService == null){
             mCellService = CellAll(context)
         }

@@ -3,7 +3,6 @@ package com.example.getcellinfos.Pager.fragments.SensorActivity
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import android.util.Log
 
 class SensorListener(val eventChange: (FloatArray?) -> Unit, val accChange: (Int) -> Unit): SensorEventListener {
 

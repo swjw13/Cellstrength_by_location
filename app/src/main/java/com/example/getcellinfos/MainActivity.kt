@@ -23,11 +23,11 @@ import com.example.getcellinfos.activities.SettingActivity
 import com.example.getcellinfos.appDatabase.Instance.DatabaseBuilder
 import com.example.getcellinfos.appDatabase.Instance.DatabaseManager
 import com.example.getcellinfos.appDatabase.logs.CellInfo
-import com.example.getcellinfos.listener.LocationManagerAdvanced
+import com.example.getcellinfos.overallService.LocationService.LocationManagerAdvanced
 import com.example.getcellinfos.otherCellList.OtherCellListViewAdapter
-import com.example.getcellinfos.overallService.CellInfoListener
+import com.example.getcellinfos.overallService.CellinfoService.CellInfoListener
 import com.example.getcellinfos.overallService.OverAllClass
-import com.example.getcellinfos.overallService.StrengthListener
+import com.example.getcellinfos.overallService.CellinfoService.StrengthListener
 import com.example.getcellinfos.threadActivity.timerTask
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.naver.maps.geometry.LatLng
@@ -169,7 +169,8 @@ class MainActivity : AppCompatActivity() {
         listenerForSignalStrength = StrengthListener(update = { list ->
             updateStrengthView(list)
         })
-        listenerForCellInfos = CellInfoListener(updateView = { list -> updateCellInfo(list) },
+        listenerForCellInfos = CellInfoListener(
+            updateView = { list -> updateCellInfo(list) },
             updateAdapter = { list ->
                 adapter.list = list
                 adapter.notifyDataSetChanged()
@@ -241,8 +242,7 @@ class MainActivity : AppCompatActivity() {
                 android.Manifest.permission.READ_EXTERNAL_STORAGE,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 android.Manifest.permission.BLUETOOTH,
-                android.Manifest.permission.BLUETOOTH_ADMIN,
-                android.Manifest.permission.ACTIVITY_RECOGNITION
+                android.Manifest.permission.BLUETOOTH_ADMIN
             ), 101
         )
     }
