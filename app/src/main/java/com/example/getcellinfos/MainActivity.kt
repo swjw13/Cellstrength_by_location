@@ -34,7 +34,11 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 @SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
@@ -77,12 +81,14 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var overallClass: OverAllClass
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         initForActivity()
         overallClass = OverAllClass(this)
+
     }
 
     private fun initForActivity() {
@@ -453,6 +459,7 @@ class MainActivity : AppCompatActivity() {
             )
         )
         Memos = ""
+
         runOnUiThread {
             Toast.makeText(this, "로그 등록 완료", Toast.LENGTH_SHORT).show()
         }
